@@ -1,0 +1,35 @@
+Nodes by Layer: [256]
+Test accuracy: 0.9798
+
+Nodes by Layer: [128]
+Test accuracy: 0.9775
+
+Nodes by Layer: [96]
+Test accuracy: 0.9745
+
+Nodes by Layer: [64]
+Test accuracy: 0.9712
+
+Nodes by Layer: [32]
+Test accuracy: 0.9621
+
+Nodes by Layer: [48]
+Test accuracy: 0.9712
+
+Nodes by Layer: [32]
+Test accuracy: 0.9617
+
+Nodes by Layer: [24]
+Test accuracy: 0.9589
+
+Nodes by Layer: [16]
+Test accuracy: 0.9495
+
+Nodes by Layer: [12]
+Test accuracy: 0.929
+
+Nodes by Layer: [8]
+Test accuracy: 0.9214
+
+Nodes by Layer: [4]
+Test accuracy: 0.8596
