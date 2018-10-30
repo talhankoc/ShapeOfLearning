@@ -22,7 +22,6 @@ def makeAndRunModel(node_count_list, model_save_directory, e=5):
 	global mnist
 	#assert mnist not None, 'Data has not been fed. Call either feedFashionDataset() or feedDigitDataset().'
 	(train_images, train_labels), (test_images, test_labels) = mnist.load_data()
-
 	train_images, test_images = train_images.astype('float32') / 255, test_images.astype('float32') / 255
 	print("Nodes by Layer:", node_count_list)
 	save_name = "NN-Fashion-"+"_".join(map(str, node_count_list))
