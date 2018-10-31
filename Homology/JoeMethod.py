@@ -1,7 +1,7 @@
 import numpy as np
 import sys,os, math
 import matplotlib.pyplot as plt
-import computeHomology
+import computeHomology, makeAllGraphs
 
 
 JULIA_PATH = "/private/var/folders/61/tv6hd9dj145g16hpffs8ld880000gn/T/AppTranslocation/B0BC6F18-0A70-4FE2-842D-B096854CAE28/d/Julia-1.0.app/Contents/Resources/julia/bin/julia"
@@ -73,6 +73,7 @@ def getClosestPoint(distanceToVertex,coveredPoints):
 Loads in a file, and then computes the distance matrix. Returns the distance matrix
 '''
 def main(filepath):
+	makeAllGraphs.main(["",str(cutoff),"-uw","-b",generateGraphFileName(cutoff),path])
 	matrix = computeHomology.get_adjacency_matrix(filepath)
 	convertWeightsToDistances(matrix)
 	numVertices = matrix.shape[0]

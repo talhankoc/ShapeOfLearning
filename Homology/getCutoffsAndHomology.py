@@ -78,7 +78,7 @@ def generateBettiFileName():
 	return savePathUnweighted + symbolicName + "/BettiData.txt"
 
 def generateJoeBettiFileName():
-	return savePathUnweighted + symbolicName + "BettiData.txt"
+	return savePathUnweighted + symbolicName + "BettiJoeData.txt"
 
 '''
 This function will run makeAllGraphs, after loading the required numpy file into memory
