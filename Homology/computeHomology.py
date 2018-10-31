@@ -1,110 +1,134 @@
 import numpy,sys,os
 import matplotlib.pyplot as plt
-
+import networkx as nx
+import JoeMethod
 
 '''
 Computes betti 0 and betti1 for an abstract graph saved as an adjacency matrix.
 argv = ["", filename] where filename is a file with a numpy saved adjacency matrix in it
 
 '''
+
+
 def main(argv):
-	global boundaryMatrix
-	global boundarySize
-	global allLowestOnes
-	allLowestOnes=[]
+	global b_mat
+	global b_size
+	global lowest_ones
+	lowest_ones=[]
 	if len(argv)<1:
 		print("Please run with arguments\n")
 		return (-1,-1)
-	matrix = getAdjacencyMatrix(argv[0])
-	vertices,edges,edgeList = countEdges(matrix)
-	boundaryMatrix = makeBoundary(vertices,edges,edgeList)
-	boundarySize = boundaryMatrix.shape[0]
-	getAllLowestOnes()
-	reduceMatrix()
-	return computeHomology(vertices)
+
+	# THIS LINE HAS BEEN CHANGED FOR JOE'S METHOD
+	matrix = argv[0] #get_adjacency_matrix(argv[0])
+
+	(vertices,edges,edge_list) = count_edges(matrix)
+	b_mat = make_boundary(vertices,edges,edge_list)
+	#draw_network(vertices,edge_list,argv[1])
+	b_size = b_mat.shape[0]
+	get_lowest_ones()
+	reduce_matrix()
+	return compute_homology(vertices)
 
 
 #return the adjacency matrix from file
-def getAdjacencyMatrix(filename):
+def get_adjacency_matrix(filename):
 	matrix = numpy.load(filename)
 	return matrix
 
-#converts an adjacency  matrix into G = V,E
-def countEdges(matrix):
+#takes the vertices and assigns them positions
+def generate_position(vertices):
+	network = nx.Graph()
+	for i in range(0,vertices):
+		network.add_node(i)
+	pos = nx.spring_layout(network,k=0.15,iterations=20)
+	return (pos,network)
+
+#makes a graph and saves it as a .png file
+def draw_network(vertices,edge_list,filename,pos,network):
+
+	for i in edge_list:
+		network.add_edge(*i)
+	nx.draw(network,pos,node_color='xkcd:magenta',node_size=1,width=0.2)
+	plt.savefig(filename,edgecolor='xkcd:black',dpi=255)
+	plt.clf()
+	return
+
+#returns the number of faces along with a list of all edges
+def count_edges(matrix):
 	vertices = matrix.shape[0]
 	edges = 0
-	edgeList = []
+	edge_list = []
 	for i in range(0,vertices):
 		for j in range(i,vertices):
 			if matrix.item(i,j)==1:
 				edges+=1
-				edgeList.append((i,j))
-	return vertices,edges,edgeList
+				edge_list.append((i,j))
+	return (vertices,edges,edge_list)
 
-#converts G = V,E into a boundary matrix as per Elsbrunner
-def makeBoundary(vertices,edges,edgeList):
-	boundaryMatrixrix = numpy.zeros((vertices+edges,vertices+edges),dtype=numpy.int)
-	for num, (i,j) in enumerate(edgeList):
+#makes the boundary matrix and returns it
+def make_boundary(vertices,edges,edge_list):
+	b_matrix = numpy.zeros((vertices+edges,vertices+edges),dtype=numpy.int)
+	for num, (i,j) in enumerate(edge_list):
 		index = num + vertices
-		boundaryMatrixrix[i,index] = 1
-		boundaryMatrixrix[j,index] = 1
-	return boundaryMatrixrix
+		b_matrix[i,index] = 1
+		b_matrix[j,index] = 1
+	return b_matrix
 
-#Get all lowest ones utility function for homology computation
-def getAllLowestOne():
-	global allLowestOnes
-	for i in range(0,boundarySize):
-		allLowestOnes.append(get_low(i))
+def get_lowest_ones():
+	global lowest_ones
+	for i in range(0,b_size):
+		lowest_ones.append(get_low(i))
 
 
 #returns the index of the lowest 1 in a column
 def get_low(j):
-	for i in range(boundarySize-1,-1,-1):
-		if boundaryMatrix.item(i,j)==1:
+	for i in range(b_size-1,-1,-1):
+		if b_mat.item(i,j)==1:
 			return i
 	return -1
 
 #checks to see if there is a lower 1 and returns the index
 def has_lower(j):
-	if j==0 or allLowestOnes[j]==-1:
+	if j==0 or lowest_ones[j]==-1:
 		return -1
 	for i in range(0,j):
-		if allLowestOnes[i]==allLowestOnes[j]:
+		if lowest_ones[i]==lowest_ones[j]:
 			return i
 	return -1
 
 #adds two columns modulo 2 
-def addColumn(low,high):
-	global boundaryMatrix
-	global allLowestOnes
-	for i in range(0,boundarySize):
-		if boundaryMatrix.item(i,low)==1:
-			if boundaryMatrix.item(i,high)==1:
-				boundaryMatrix[i,high]=0
+def add_column(low,high):
+	global b_mat
+	global lowest_ones
+	for i in range(0,b_size):
+		if b_mat.item(i,low)==1:
+			if b_mat.item(i,high)==1:
+				b_mat[i,high]=0
 			else:
-				boundaryMatrix[i,high]=1
-	allLowestOnes[high] = get_low(high)
+				b_mat[i,high]=1
+	lowest_ones[high] = get_low(high)
 
 #returns a reduced boundary matrix
-def reduceMatrix():
-	for i in range(0,boundarySize):
+def reduce_matrix():
+	for i in range(0,b_size):
 		low_index = has_lower(i)
 		while(low_index!=-1):
-			addColumn(low_index,i)
+			add_column(low_index,i)
 			low_index = has_lower(i)
 
 #returns betti 0 and betti 1
-def computeHomology(vertices):
+def compute_homology(vertices):
 	z0,b0,z1,b1 = 0,0,0,0
 	for i in range(0,vertices):
-		if allLowestOnes[i]==-1:
+		if lowest_ones[i]==-1:
 			z0+=1
-		if i in allLowestOnes:
+		if i in lowest_ones:
 			b0+=1
-	for i in range(vertices,boundarySize):
-		if allLowestOnes[i]==-1:
+	for i in range(vertices,b_size):
+		if lowest_ones[i]==-1:
 			z1+=1
-		if i in allLowestOnes:
+		if i in lowest_ones:
 			b1+=1
 	return (z0-b0,z1-b1)
 	
