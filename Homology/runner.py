@@ -1,4 +1,5 @@
 import getCutoffsAndHomology
+from multiprocessing import Pool
 
 network = ["Digits","Fashion"]
 epoch = [1,2,3,4,5,10,15,20,25,30]
@@ -13,11 +14,18 @@ def symbName(n,e, t, l):
 def pathName(n,e,t,l):
 	return constant + n + "/Variable Units - "+str(e)+" epochs/"+"Test"+str(t)+"/SimpleNN-"+str(l)
 
-for n in network:
-	for e in epoch:
-		for t in test:
-			for l in layers:
-				getCutoffsAndHomology.main(["",str(0.05),pathName(n,e,t,l),symbName(n,e,t,l)])
+
+if __name__=="__main__":
+	workerInputs = []
+	for n in network:
+		for e in epoch:
+			for t in test:
+				for l in layers:
+					workerInputs.append(["",str(0.05),pathName(n,e,t,l),symbName(n,e,t,l)])
+
+
+pool = Pool(processes=10)
+print(pool.map(getCutoffsAndHomology.cuck,workerInputs))
 
 '''
 How did the weights change in this same time period 

@@ -14,6 +14,10 @@ main([string inputFileName,float cutoffStep])
 Takes one input file, 
 '''
 
+def cuck(input):
+	print(str(input))
+	return
+	
 savePathUnweighted = "/home/ec2-user/ShapeOfLearning/Homology/BettiData/"
 path = ""
 symbolicName = ""
