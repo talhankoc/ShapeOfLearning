@@ -1,4 +1,7 @@
 import getCutoffsAndHomology
+import matplotlib
+#Necessary to work on AWS
+matplotlib.use('agg',warn=False, force=True)
 
 network = ["Digits","Fashion"]
 epoch = [1,2,3,4,5,10,15,20,25,30]
