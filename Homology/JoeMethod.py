@@ -1,5 +1,7 @@
 import numpy as np
 import sys,os, math
+import matplotlib
+matplotlib.use('agg',warn=False, force=True)
 import matplotlib.pyplot as plt
 import computeHomology, makeAllGraphs
 

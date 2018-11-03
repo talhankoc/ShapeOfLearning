@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('agg',warn=False, force=True)
 from matplotlib import pyplot
 from math import cos, sin, atan
 

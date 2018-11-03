@@ -1,4 +1,6 @@
 import numpy,sys,os
+import matplotlib
+matplotlib.use('agg',warn=False, force=True)
 import matplotlib.pyplot as plt
 import JoeMethod
 

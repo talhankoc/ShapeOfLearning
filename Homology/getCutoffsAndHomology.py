@@ -1,5 +1,7 @@
 import os,sys,computeHomology,makeAllGraphs
 import numpy as np
+import matplotlib
+matplotlib.use('agg',warn=False, force=True)
 import matplotlib.pyplot as plt
 import JoeMethod
 
