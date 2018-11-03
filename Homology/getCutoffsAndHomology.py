@@ -1,4 +1,4 @@
-import os,sys,computeHomology,makeAllGraphs
+import os,sys,computeHomology,makeAllGraphs, gc
 import numpy as np
 import matplotlib
 matplotlib.use('agg',warn=False, force=True)
@@ -32,6 +32,7 @@ def main(argv):
 			print("Betti data already exists for: "+symbolicName)
 			return
 	computeBetti(cutoffs,path)
+	gc.collect()
 	return
 
 '''
