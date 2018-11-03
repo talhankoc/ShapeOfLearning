@@ -28,6 +28,9 @@ def main(argv):
 		makeGraphGivenCutoff(cutoffs,path)
 	except:
 		print("Matrices already exist for: "+symbolicName)
+		if os.path.isfile(generateBettiFileName):
+			print("Betti data already exists for: "+symbolicName)
+			return
 	computeBetti(cutoffs,path)
 	return
 
