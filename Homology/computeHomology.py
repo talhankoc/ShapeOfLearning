@@ -1,6 +1,5 @@
 import numpy,sys,os
 import matplotlib.pyplot as plt
-import networkx as nx
 import JoeMethod
 
 '''
@@ -19,8 +18,7 @@ def main(argv):
 		print("Please run with arguments\n")
 		return (-1,-1)
 
-	# THIS LINE HAS BEEN CHANGED FOR JOE'S METHOD
-	matrix = argv #get_adjacency_matrix(argv[0])
+	matrix = get_adjacency_matrix(argv[0])
 	(vertices,edges,edge_list) = count_edges(matrix)
 	b_mat = make_boundary(vertices,edges,edge_list)
 	#draw_network(vertices,edge_list,argv[1])
@@ -35,6 +33,10 @@ def get_adjacency_matrix(filename):
 	matrix = numpy.load(filename)
 	return matrix
 
+'''
+
+Commented out to save networkx import
+
 #takes the vertices and assigns them positions
 def generate_position(vertices):
 	network = nx.Graph()
@@ -42,6 +44,7 @@ def generate_position(vertices):
 		network.add_node(i)
 	pos = nx.spring_layout(network,k=0.15,iterations=20)
 	return (pos,network)
+
 
 #makes a graph and saves it as a .png file
 def draw_network(vertices,edge_list,filename,pos,network):
@@ -52,6 +55,7 @@ def draw_network(vertices,edge_list,filename,pos,network):
 	plt.savefig(filename,edgecolor='xkcd:black',dpi=255)
 	plt.clf()
 	return
+'''	
 
 #returns the number of faces along with a list of all edges
 def count_edges(matrix):
