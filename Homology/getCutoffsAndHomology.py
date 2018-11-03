@@ -23,8 +23,11 @@ def main(argv):
 	global symbolicName
 	path = argv[2]
 	symbolicName = argv[3]
-	os.makedirs(savePathUnweighted+symbolicName)
-	makeGraphGivenCutoff(cutoffs,path)
+	try:
+		os.makedirs(savePathUnweighted+symbolicName)
+		makeGraphGivenCutoff(cutoffs,path)
+	except:
+		print("Matrices already exist for: "+symbolicName)
 	computeBetti(cutoffs,path)
 	return
 
