@@ -17,10 +17,7 @@ for n in network:
 	for e in epoch:
 		for t in test:
 			for l in layers:
-				#try:
 				getCutoffsAndHomology.main(["",str(0.05),pathName(n,e,t,l),symbName(n,e,t,l)])
-				#except:
-					#print("Skipping "+symbName(n,e,t,l))
 
 '''
 How did the weights change in this same time period 
