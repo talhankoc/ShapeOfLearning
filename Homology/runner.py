@@ -23,9 +23,8 @@ if __name__=="__main__":
 				for l in layers:
 					workerInputs.append(["",str(0.05),pathName(n,e,t,l),symbName(n,e,t,l)])
 
-
-pool = Pool(processes=10)
-print(pool.map(getCutoffsAndHomology.cuck,workerInputs))
+	pool = Pool(processes=10)
+	print(pool.map(getCutoffsAndHomology.main,workerInputs))
 
 '''
 How did the weights change in this same time period 
