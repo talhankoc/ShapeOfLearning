@@ -61,7 +61,7 @@ def getClosestPoint(distanceToVertex,coveredPoints):
 	closestVertex = -1
 
 	for vertex in distanceToVertex:
-		if distanceToVertex[vertex]<minDistance:
+		if distanceToVertex[vertex]<=minDistance:
 			if (vertex in coveredPoints):
 				continue
 			minDistance = distanceToVertex[vertex]
@@ -72,11 +72,12 @@ def getClosestPoint(distanceToVertex,coveredPoints):
 '''
 Loads in a file, and then computes the distance matrix. Returns the distance matrix
 '''
-def main(filepath):
-	makeAllGraphs.main(["",str(cutoff),"-uw","-b",generateGraphFileName(cutoff),path])
-	matrix = computeHomology.get_adjacency_matrix(filepath)
+def main(filepath,savepath):
+	makeAllGraphs.main(["",str(0.0),"-uw","-b",savepath,filepath])
+	matrix = computeHomology.get_adjacency_matrix(savepath+".npy")
 	convertWeightsToDistances(matrix)
 	numVertices = matrix.shape[0]
+
 	for i in range(0,numVertices):
 		for j in range(0,numVertices):
 			if i==j:

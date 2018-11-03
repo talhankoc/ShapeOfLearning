@@ -20,8 +20,7 @@ def main(argv):
 		return (-1,-1)
 
 	# THIS LINE HAS BEEN CHANGED FOR JOE'S METHOD
-	matrix = argv[0] #get_adjacency_matrix(argv[0])
-
+	matrix = argv #get_adjacency_matrix(argv[0])
 	(vertices,edges,edge_list) = count_edges(matrix)
 	b_mat = make_boundary(vertices,edges,edge_list)
 	#draw_network(vertices,edge_list,argv[1])

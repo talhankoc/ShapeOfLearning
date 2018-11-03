@@ -1,4 +1,5 @@
-import numpy,os,sys,computeHomology,makeAllGraphs
+import os,sys,computeHomology,makeAllGraphs
+import numpy as np
 import matplotlib.pyplot as plt
 import JoeMethod
 
@@ -22,8 +23,8 @@ def main(argv):
 	path = argv[2]
 	symbolicName = argv[3]
 	global matrix 
-	matrix = JoeMethod.main(path)
-	computeJoeBetti(cutoffs,matrix)
+	matrix = JoeMethod.main(path,savePathUnweighted+symbolicName)
+	computeJoeBetti(cutoffs)
 
 	'''
 	os.makedirs(savePathUnweighted+symbolicName)
@@ -36,17 +37,17 @@ def computeJoeBetti(cutoffs):
 	global matrix
 	allBettiNumbers = []
 	for cutoff in cutoffs:
-		betti0,betti1 = computeHomology.main(cutoffMatrix(cutoff,matrix))
+		betti0,betti1 = computeHomology.main(cutoffMatrix(cutoff))
 		allBettiNumbers.append([betti0,betti1])
 
 		print("Cutoff: "+str(cutoff)+", Betti0: "+str(betti0)+", Betti1: "+str(betti1))
 
-	numpy.savetxt(generateJoeBettiFileName(),numpy.array(allBettiNumbers))
+	np.savetxt(generateJoeBettiFileName(),np.array(allBettiNumbers))
 	return
 
 def cutoffMatrix(cutoff):
 	global matrix
-	newMatrix = np.zeroes(matrix.shape)
+	newMatrix = np.zeros(matrix.shape)
 	for i in range(0,matrix.shape[0]):
 		for j in range(0,matrix.shape[0]):
 			if matrix.item(i,j)>= cutoff:
@@ -97,7 +98,7 @@ def computeBetti(cutoffs,path):
 
 		print("Cutoff: "+str(cutoff)+", Betti0: "+str(betti0)+", Betti1: "+str(betti1))
 
-	numpy.savetxt(generateBettiFileName(),numpy.array(allBettiNumbers))
+	np.savetxt(generateBettiFileName(),np.array(allBettiNumbers))
 	return
  
 if __name__=="__main__":
