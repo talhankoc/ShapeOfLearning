@@ -38,7 +38,7 @@ if __name__=="__main__":
 					args=(workerInputs[argCounter],))
 				argCounter += 1
 				pool[num].start()
-				time.sleep(1)
+		time.sleep(1)
 
 
 
