@@ -18,8 +18,6 @@ savePathUnweighted = "/home/ec2-user/ShapeOfLearning/Homology/BettiData/"
 path = ""
 symbolicName = ""
 def main(argv):
-	print(str(argv))
-	return
 	cutoffs = generateAllCutoffSteps(0.05,1.0,float(argv[1]))
 	global path
 	global symbolicName
