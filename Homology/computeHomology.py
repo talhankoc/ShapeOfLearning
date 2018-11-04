@@ -73,7 +73,7 @@ def count_edges(matrix):
 
 #makes the boundary matrix and returns it
 def make_boundary(vertices,edges,edge_list):
-	b_matrix = numpy.zeros((vertices+edges,vertices+edges),dtype=numpy.int)
+	b_matrix = numpy.zeros((vertices+edges,vertices+edges),dtype=numpy.int32)
 	for num, (i,j) in enumerate(edge_list):
 		index = num + vertices
 		b_matrix[i,index] = 1
