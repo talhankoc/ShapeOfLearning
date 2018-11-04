@@ -1,6 +1,6 @@
-import getCutoffsAndHomology, sys
+import getCutoffsAndHomology, sys, time
 from guppy import hpy
-from multiprocessing import Pool
+from multiprocessing import Process
 
 network = ["Digits","Fashion"]
 epoch = [1,2,3,4,5,10,15,20,25,30]
@@ -23,11 +23,25 @@ if __name__=="__main__":
 			for t in test:
 				for l in layers:
 					workerInputs.append(["",str(0.05),pathName(n,e,t,l),symbName(n,e,t,l)])
-	try:
-		pool = Pool(processes=int(sys.argv[1]))
-		print(pool.map(getCutoffsAndHomology.main,workerInputs))
-	except MemoryError:
-		print hpy().heap()
+	argCounter = 0
+	numProcesses = int(sys.argv[1])
+	pool = []
+	for num in range(0,numProcesses):
+		pool.append(Process(target=getCutoffsAndHomology.main,
+			args=(workerInputs[argCounter],)))
+		argCounter += 1
+		pool[num].start()
+
+	while argCounter< len(workerInputs):
+		for num in range(0,numProcesses):
+			if (!pool[num].is_alive()):
+				pool[num] = Process(target=getCuroffsAndHomology.main,
+					args=(workerInputs[argCounter],))
+				argCounter += 1
+				pool[num].start()
+				time.sleep(10)
+
+
 
 '''
 How did the weights change in this same time period 
