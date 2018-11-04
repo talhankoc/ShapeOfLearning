@@ -4,7 +4,7 @@ from multiprocessing import Process
 network = ["Digits","Fashion"]
 epoch = [1,2,3,4,5,10,15,20,25,30]
 test = [1,2,3]
-layers = [4,8,12,16,24,32,48,64,96,128,256]
+layers = [4,8,12,16,24,32,48,64,96]
 
 constant = "/home/ec2-user/ShapeOfLearning/NNGeneration/Saved Models/"
 
