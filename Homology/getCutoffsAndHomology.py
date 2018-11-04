@@ -1,4 +1,4 @@
-import os,sys,computeHomology,makeAllGraphs, gc
+import os,sys,computeHomology,makeAllGraphs
 import numpy as np
 import matplotlib
 matplotlib.use('agg',warn=False, force=True)
@@ -18,6 +18,8 @@ savePathUnweighted = "/home/ec2-user/ShapeOfLearning/Homology/BettiData/"
 path = ""
 symbolicName = ""
 def main(argv):
+	print(str(argv))
+	return
 	cutoffs = generateAllCutoffSteps(0.05,1.0,float(argv[1]))
 	global path
 	global symbolicName
@@ -32,7 +34,6 @@ def main(argv):
 			print("Betti data already exists for: "+symbolicName)
 			return
 	computeBetti(cutoffs,path)
-	gc.collect()
 	return
 
 '''
