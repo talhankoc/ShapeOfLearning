@@ -6,7 +6,7 @@ inputVertices = 784
 outputVertices = 10
 symbName = ""
 path = ""
-savePath = "/home/ec2-user/ShapeOfLearning/Homology/BettiData/NewMethod/"
+savePath = "/home/ec2-user/ShapeOfLearning/Homology/BettiData/"
 
 '''
 This function goes to the file specified by path, and creates a weighted, unbiased adjacency matrix.
@@ -80,7 +80,7 @@ def addConnectionsToMatrix():
 					connectionStrengthPrev = getConnectionForLayer(matrix,v1,v2,0,inputVertices)
 					connectionStrengthNext = getConnectionForLayer(matrix,v1,v2,currLayerEnd,currLayerEnd+numVertices)
 					connectionStrength = (connectionStrengthNext + connectionStrengthPrev) / 2
-				else if (currLayerEnd==outputLayerStart):
+				elif (currLayerEnd==outputLayerStart):
 					connectionStrengthPrev = getConnectionForLayer(matrix,v1,v2,currLayerStart-numVertices,currLayerStart)
 					connectionStrengthNext = getConnectionForLayer(matrix,v1,v2,outputLayerStart,outputLayerEnd)
 					connectionStrength = (connectionStrengthNext + connectionStrengthPrev) / 2
@@ -156,7 +156,6 @@ def renormalizeMatrixLayers(matrix):
 		currEnd += numVertices
 
 	renormalizeLayer(matrix,outputLayerStart,outputLayerEnd)
-
 
 '''
 This function normalizes a layer of a matrix. If nextStart and nextEnd are -1, 

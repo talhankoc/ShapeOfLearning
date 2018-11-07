@@ -7,7 +7,7 @@ layers = [8,16,24,32,40,48]
 constant = "/home/ec2-user/ShapeOfLearning/NNGeneration/Saved Models/Fashion - Each Epoch/"
 
 def symbName(e,l):
-	return "Fashion2_"n+"_"+str(e)+"_"+str(t)+"_"+str(l)
+	return "Fashion2_"+n+"_"+str(e)+"_"+str(t)+"_"+str(l)
 
 def pathName(e,l):
 	return constant + "NN-Fashion-"+str(l)+"__Epoch"+str(e)
