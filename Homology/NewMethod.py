@@ -103,19 +103,19 @@ def addConnectionsToMatrix():
 
 '''
 This function takes each vertex in the layer, and calculates the connection strength.
-The total connection strength is then averaged for 40%-60%, and returned.
+The total connection strength is then averaged for 90%-100%, and returned.
 '''
 def getConnectionForLayer(matrix,v1,v2,start,end):
 	allConnections = []
 
 	for i in range(start,end):
-		currConnection = matrix.item(v1,i) * matrix.item(v2,i)
+		currConnection = matrix.item(v1,i) + matrix.item(v2,i)
 		allConnections.append(currConnection)
 	allConnections.sort()
 
 	totalConnection = 0
-	listStart = len(allConnections)*0.4
-	listEnd = len(allConnections)*0.6
+	listStart = len(allConnections)*0.9
+	listEnd = len(allConnections)
 	for i in range(listStart,listEnd):
 		totalConnection += allConnections[i]
 
