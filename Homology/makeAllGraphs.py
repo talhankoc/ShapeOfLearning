@@ -15,7 +15,7 @@ def main(argv):
 	if argv[2] == '-w':
 		if argv[3] == '-nb':
 			print('Creating weighted adjacency matrix without including the biases')
-			matrices = getWeightedAdjacencyMatrixNoBias()
+			matrices = makeGraphNoBias.getWeightedAdjacencyMatrixNoBias()
 		elif argv[3] == '-b':
 			print('Creating weighted adjacency matrix, including the biases')
 			matrices = getWeightedAdjacencyMatrix()

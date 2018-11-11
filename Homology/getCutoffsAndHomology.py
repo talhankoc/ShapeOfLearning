@@ -1,5 +1,9 @@
-import numpy,os,sys,computeHomology,makeAllGraphs
+import os,sys,computeHomology,makeAllGraphs
+import numpy as np
+import matplotlib
+matplotlib.use('agg',warn=False, force=True)
 import matplotlib.pyplot as plt
+import JoeMethod
 
 '''
 Generates adjacency matrices for different cutoff values and also computes betti numbers
@@ -10,7 +14,7 @@ main([string inputFileName,float cutoffStep])
 Takes one input file, 
 '''
 
-savePathUnweighted = "/Users/kunaalsharma/Desktop/MATH 493/ShapeOfLearning/BettiData/"
+savePathUnweighted = "/home/ec2-user/ShapeOfLearning/Homology/BettiData/"
 path = ""
 symbolicName = ""
 def main(argv):
@@ -19,8 +23,14 @@ def main(argv):
 	global symbolicName
 	path = argv[2]
 	symbolicName = argv[3]
-	os.makedirs(savePathUnweighted+symbolicName)
-	makeGraphGivenCutoff(cutoffs,path)
+	try:
+		os.makedirs(savePathUnweighted+symbolicName)
+		makeGraphGivenCutoff(cutoffs,path)
+	except:
+		print("Matrices already exist for: "+symbolicName)
+		if os.path.isfile(generateBettiFileName()):
+			print("Betti data already exists for: "+symbolicName)
+			return
 	computeBetti(cutoffs,path)
 	return
 
@@ -30,7 +40,6 @@ of the end)
 Eg: start: 0.05, end: 1.00, cutoffStep: 0.05 returns:
 [0.05,0.10,0.15,0.20,0.25,...,0.95]
 
-Precise to three decimal places.
 '''
 def generateAllCutoffSteps(start, end, cutoffStep):
 	return [x/1000.0 for x in range(int(start*1000),int(end*1000),int(cutoffStep*1000))]
@@ -64,7 +73,7 @@ def computeBetti(cutoffs,path):
 
 		print("Cutoff: "+str(cutoff)+", Betti0: "+str(betti0)+", Betti1: "+str(betti1))
 
-	numpy.savetxt(generateBettiFileName(),numpy.array(allBettiNumbers))
+	np.savetxt(generateBettiFileName(),np.array(allBettiNumbers))
 	return
  
 if __name__=="__main__":

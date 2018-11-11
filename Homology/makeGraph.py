@@ -101,7 +101,7 @@ def getWeightsByStrength(m,strength):
 	ret = []
 	for i in range(m.shape[0]):
 		for j in range(m.shape[1]):
-			if m[i,j] > strength:
+			if m[i,j] >= strength:
 				ret.append((i,j))
 	return ret
 
