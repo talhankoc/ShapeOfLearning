@@ -1,21 +1,29 @@
+#python makeAllGraphs.py [cutoff value] [-w for weighted matrix, -uw for unweighted] 
+# [-nb for no biases, -b for biases] [optional filename prefix for saving]
 import sys
 import makeGraph
 import makeGraphNoBias
 import numpy as np
 
-global path
+
+
+path = 'snapshots/'
+savePathUnweighted = 'unweightedAdjacencyMatrices'
+savePathWeighted = 'weightedAdjacencyMatrices'
+number_of_models = 10
+
+
 
 def main(argv):
 	assert len(argv) >= 4, 'ERROR: Please enter required paramters. See readme.txt ...'
 	cutoff = float(argv[1])
-	global path
-	path = argv[5]
 	saveName = None
+	matrices = []
 
 	if argv[2] == '-w':
 		if argv[3] == '-nb':
 			print('Creating weighted adjacency matrix without including the biases')
-			matrices = makeGraphNoBias.getWeightedAdjacencyMatrixNoBias()
+			matrices = getWeightedAdjacencyMatrixNoBias()
 		elif argv[3] == '-b':
 			print('Creating weighted adjacency matrix, including the biases')
 			matrices = getWeightedAdjacencyMatrix()
@@ -42,21 +50,130 @@ def main(argv):
 		print('No filename was given for saving. Adjacency matrix will not be saved.')
 	
 	if saveName != None:
-		saveBinary(matrices, saveName)
+		i = 0
+		for m in matrices:
+			saveReadable(m, saveName+str(i))
+			i+=1
+
+
+
+
+def nobiases(cutoff):
+	
+	matrices = []
+	for i in range(number_of_models):
+		print('\nITERATION:' + str(i))
+		w1 = np.loadtxt(path+'W1-' + str(i)+'.npy', delimiter=',')
+		w2 = np.loadtxt(path+'W2-' + str(i)+'.npy', delimiter=',')
+		G = makeGraphNoBias.makeGraph([w1,w2], cutoff)
+		matrices.append(graphToAdjacencyMatrix(G))
+		print('Vertices:', len(G[0]),'\tEdges:',len(G[1]))
+
+	return matrices		
+
 
 def withbiases(cutoff):
-	w1 = np.load(path+'_W1.npy')
-	w2 = np.load(path+'_W2.npy')
-	b1 = np.load(path+'_b1.npy')
-	b2 = np.load(path+'_b2.npy')
-	b1 = np.reshape(b1, (1, -1))
-	b2 = np.reshape(b2, (1, -1))
-	G = makeGraph.makeGraph([w1,w2],[b1,b2], cutoff)
-	print('Vertices:', len(G[0]),'\tEdges:',len(G[1]))	
-	return graphToAdjacencyMatrix(G)
+	
+	matrices = []
+	for i in range(number_of_models):
+		print('\nITERATION:' + str(i))
+		w1 = np.loadtxt(path+'W1-' + str(i)+'.npy', delimiter=',')
+		w2 = np.loadtxt(path+'W2-' + str(i)+'.npy', delimiter=',')
+		b1 = np.loadtxt(path+'b1-' + str(i)+'.npy', delimiter=',')
+		b2 = np.loadtxt(path+'b2-' + str(i)+'.npy', delimiter=',')
+		b1 = np.reshape(b1, (1, -1))
+		b2 = np.reshape(b2, (1, -1))
+		G = makeGraph.makeGraph([w1,w2],[b1,b2], cutoff)
+		matrices.append(graphToAdjacencyMatrix(G))
+		print('Vertices:', len(G[0]),'\tEdges:',len(G[1]))
+		
+	return matrices
+
+def getWeightedAdjacencyMatrix():
+	graphs = []
+	for i in range(number_of_models):
+		print('\nITERATION:' + str(i))
+		w1 = np.loadtxt(path+'W1-' + str(i)+'.npy', delimiter=',')
+		w2 = np.loadtxt(path+'W2-' + str(i)+'.npy', delimiter=',')
+		b1 = np.loadtxt(path+'b1-' + str(i)+'.npy', delimiter=',')
+		b2 = np.loadtxt(path+'b2-' + str(i)+'.npy', delimiter=',')
+		b1 = np.reshape(b1, (1, -1))
+		b2 = np.reshape(b2, (1, -1))
+
+		dim = w1.shape[0] + 1 + w2.shape[0] + 1 + w2.shape[1]
+		m = np.zeros((dim,dim))
+
+		inputLayerOffset = w1.shape[0] # +1 for bias layer and +1 for next starting point
+		hiddenLayerOffset = inputLayerOffset + 1 + w2.shape[0]
+		
+		#place w1
+		placeSmallerInBiggerMatrix(0, inputLayerOffset + 1, w1,m)
+		print('successfully placed w1')
+
+		#place b1
+		placeSmallerInBiggerMatrix(inputLayerOffset, inputLayerOffset + 1, b1,m)
+		print('successfully placed b1')
+
+		#place w2
+		placeSmallerInBiggerMatrix(inputLayerOffset+1, hiddenLayerOffset + 1, w2, m)
+		print('successfully placed w2')
+		#place b2
+		placeSmallerInBiggerMatrix(hiddenLayerOffset, hiddenLayerOffset + 1, b2, m)
+		print('successfully placed b2')
+
+		assert check_symmetric(m)
+		graphs.append(m)
+
+	return graphs
+
+def getWeightedAdjacencyMatrixNoBias():
+	graphs = []
+	for i in range(number_of_models):
+		print('\nITERATION:' + str(i))
+		w1 = np.loadtxt(path+'W1-' + str(i)+'.npy', delimiter=',')
+		w2 = np.loadtxt(path+'W2-' + str(i)+'.npy', delimiter=',')
+		b1 = np.loadtxt(path+'b1-' + str(i)+'.npy', delimiter=',')
+		b2 = np.loadtxt(path+'b2-' + str(i)+'.npy', delimiter=',')
+		b1 = np.reshape(b1, (1, -1))
+		b2 = np.reshape(b2, (1, -1))
+
+		dim = w1.shape[0] + w2.shape[0] + w2.shape[1]
+		m = np.zeros((dim,dim))
+
+		inputLayerOffset = w1.shape[0] # +1 for bias layer and +1 for next starting point
+		hiddenLayerOffset = inputLayerOffset + w2.shape[0]
+
+		#place w1
+		placeSmallerInBiggerMatrix(0, inputLayerOffset, w1,m)
+		print('successfully placed w1')
+
+		#place w2
+		placeSmallerInBiggerMatrix(inputLayerOffset, hiddenLayerOffset, w2, m)
+		print('successfully placed w2')
+
+		assert check_symmetric(m)
+		graphs.append(m)
+
+	return graphs
+
+def placeSmallerInBiggerMatrix(rowOffset,colOffset, smaller,bigger):
+	for i in range(0, smaller.shape[0]):
+		for j in range(0, smaller.shape[1]):			
+			bigger[i+rowOffset,j+colOffset] = smaller[i,j]
+			bigger[j+colOffset, i+rowOffset] = smaller[i,j]
+
+
+def check_symmetric(a, tol=1e-8):
+    return np.allclose(a, a.T, atol=tol)
+
+
+
+def intersect(a,b):
+	return None#[x for x,y in zip(a,b) if (x[0] == y[0] and x[1] == y[1])]
 
 def graphToAdjacencyMatrix(G):
 	dim = len(G[0])
+	print('dim =',dim)
 	m = np.zeros((dim,dim))
 	for edge in G[1]:
 		m[edge[0]-1,edge[1]-1] = 1
@@ -74,18 +191,19 @@ def adjacencyErrorCheck(m):
 	#TODO check that no node from below is connected to these
 	return True
 
+
 def save(m, filename):
 	saveBinary(m,filename)
 	saveReadable(m,filename)
 
 def saveBinary(m, filename):
 	#Binary data
-	np.save(filename, m)
+	np.save(savePathUnweighted+'/'+filename+'.npy', m)
 
 def saveReadable(m, filename):
 
 	#Human readable data
-	np.savetxt(filename+'.txt', m)
+	np.savetxt(savePathUnweighted+'/'+filename+'.txt', m)
 
 if __name__ == '__main__':
 	main(sys.argv)
