@@ -50,7 +50,7 @@ This function calls makeAllGraphs, and generates the raw adjacency matrix. This 
 saved in the savePath location
 '''
 def generateRawAdjacencyMatrix():
-	makeAllGraphs.main(["","0","-w","-nb",generateMatrixSavePath(),path])
+	makeAllGraphs.main(["","0","-w","-b",generateMatrixSavePath(),path])
 
 '''
 This function takes the matrix, and runs the connetion algorithm on it. The matrix
@@ -59,7 +59,7 @@ is then returned
 def addConnectionsToMatrix():
 	matrix = convertWeightToDistance(computeHomology.get_adjacency_matrix(generateMatrixSavePath()))
 	outputLayerEnd = matrix.shape[0]
-	outputLayerStart = outputLayerEnd - 10
+	outputLayerStart = outputLayerEnd - outputVertices
 	
 	#process input layer
 	for v1 in range(0,inputVertices-1): #skip last vertex because it is already checked
@@ -72,30 +72,30 @@ def addConnectionsToMatrix():
 	currLayerStart = inputVertices
 	currLayerEnd = inputVertices + numVertices
 
-	while(currLayerEnd<=outputLayerStart):
+	while(currLayerEnd<=outputLayerStart-numVertices):
 		for v1 in range(currLayerStart,currLayerEnd-1):
 			for v2 in range(v1+1,currLayerEnd):
 				connectionStrength = -1
 				if (currLayerStart==inputVertices):
 					connectionStrengthPrev = getConnectionForLayer(matrix,v1,v2,0,inputVertices)
-					connectionStrengthNext = getConnectionForLayer(matrix,v1,v2,currLayerEnd,currLayerEnd+numVertices)
+					connectionStrengthNext = getConnectionForLayer(matrix,v1,v2,currLayerEnd+numVertices,currLayerEnd+2*numVertices)
 					connectionStrength = (connectionStrengthNext + connectionStrengthPrev) / 2
-				elif (currLayerEnd==outputLayerStart):
-					connectionStrengthPrev = getConnectionForLayer(matrix,v1,v2,currLayerStart-numVertices,currLayerStart)
+				elif (currLayerEnd+numVertices==outputLayerStart):
+					connectionStrengthPrev = getConnectionForLayer(matrix,v1,v2,currLayerStart-2*numVertices,currLayerStart-numVertices)
 					connectionStrengthNext = getConnectionForLayer(matrix,v1,v2,outputLayerStart,outputLayerEnd)
 					connectionStrength = (connectionStrengthNext + connectionStrengthPrev) / 2
 				else:
-					connectionStrengthPrev = getConnectionForLayer(matrix,v1,v2,currLayerStart-numVertices,currLayerStart)
-					connectionStrengthNext = getConnectionForLayer(matrix,v1,v2,currLayerEnd,currLayerEnd+numVertices)
+					connectionStrengthPrev = getConnectionForLayer(matrix,v1,v2,currLayerStart-2*numVertices,currLayerStart-numVertices)
+					connectionStrengthNext = getConnectionForLayer(matrix,v1,v2,currLayerEnd+numVertices,currLayerEnd+2*numVertices)
 				matrix.itemset((v1,v2),connectionStrength)
 				matrix.itemset((v2,v1),connectionStrength)
-		currLayerStart += numVertices
-		currLayerEnd += numVertices
+		currLayerStart += 2*numVertices
+		currLayerEnd += 2*numVertices
 
 	#process output layer
 	for v1 in range(outputLayerStart,outputLayerEnd-1):
 		for v2 in range(v1+1,outputLayerEnd):
-			connectionStrength = getConnectionForLayer(matrix,v1,v2,outputLayerStart - numVertices, outputLayerStart)
+			connectionStrength = getConnectionForLayer(matrix,v1,v2,outputLayerStart - 2*numVertices, outputLayerStart-numVertices)
 			matrix.itemset((v1,v2),connectionStrength)
 			matrix.itemset((v2,v1),connectionStrength)
 
@@ -103,19 +103,19 @@ def addConnectionsToMatrix():
 
 '''
 This function takes each vertex in the layer, and calculates the connection strength.
-The total connection strength is then averaged for 40%-60%, and returned.
+The total connection strength is then averaged for 90%-100%, and returned.
 '''
 def getConnectionForLayer(matrix,v1,v2,start,end):
 	allConnections = []
 
 	for i in range(start,end):
-		currConnection = matrix.item(v1,i) * matrix.item(v2,i)
+		currConnection = matrix.item(v1,i) + matrix.item(v2,i)
 		allConnections.append(currConnection)
 	allConnections.sort()
 
 	totalConnection = 0
-	listStart = len(allConnections)*0.4
-	listEnd = len(allConnections)*0.6
+	listStart = len(allConnections)*0.9
+	listEnd = len(allConnections)
 	for i in range(listStart,listEnd):
 		totalConnection += allConnections[i]
 
@@ -139,21 +139,21 @@ renormalized matrix is returned
 '''
 def renormalizeMatrixLayers(matrix):
 	outputLayerEnd = matrix.shape[0]
-	outputLayerStart = outputLayerEnd - 10
+	outputLayerStart = outputLayerEnd - outputVertices
 	
 	renormalizeLayer(matrix,0,inputVertices,-1,-1)
 	currStart = inputVertices
 	currEnd = inputVertices + numVertices
 	renormalizeLayer(matrix,0,inputVertices,currStart,currEnd)
 
-	while(currEnd<=outputLayerEnd):
+	while(currEnd+numVertices<=outputLayerEnd):
 		renormalizeLayer(matrix,currStart,currEnd,-1,-1)
-		if (currEnd==outputLayerStart):
+		if (currEnd+numVertices==outputLayerStart):
 			renormalizeLayer(matrix,currStart,currEnd,outputLayerStart,outputLayerEnd)
 		else:
-			renormalizeLayer(matrix,currStart,currEnd,currStart + numVertices,currEnd + numVertices)
-		currStart += numVertices
-		currEnd += numVertices
+			renormalizeLayer(matrix,currStart,currEnd,currStart + 2*numVertices,currEnd + 2*numVertices)
+		currStart += 2*numVertices
+		currEnd += 2*numVertices
 
 	renormalizeLayer(matrix,outputLayerStart,outputLayerEnd)
 
