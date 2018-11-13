@@ -7,16 +7,16 @@ layers = [8,16,24,32,40,48]
 constant = "/home/ec2-user/ShapeOfLearning/NNGeneration/Saved Models/Fashion - Each Epoch/"
 
 def symbName(e,l):
-	return "NewFashion2_"+str(e)+"_"+str(l)
+	return "Fashion2_"+str(e)+"_"+str(l)
 
 def pathName(e,l):
 	return constant + "NN-Fashion-"+str(l)+"__Epoch"+str(e)
 
 if __name__=="__main__":
 	workerInputs = []
-	for e in [1]:#epoch:
-		for l in [8]:#layers:
-			workerInputs.append([str(l),symbName(e,l),pathName(e,l)])
+	for e in epoch:
+		for l in layers:
+			workerInputs.append([str(l),pathName(e,l),symbName(e,l)])
 	argCounter = 0
 	numProcesses = int(sys.argv[1])
 	pool = []
@@ -34,11 +34,3 @@ if __name__=="__main__":
 				argCounter += 1
 				pool[num].start()
 		time.sleep(1)
-
-
-
-'''
-How did the weights change in this same time period 
-Is the drop off proportional to the 
-'''
-
