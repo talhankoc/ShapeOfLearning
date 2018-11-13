@@ -14,8 +14,8 @@ def pathName(e,l):
 
 if __name__=="__main__":
 	workerInputs = []
-	for e in [1]:#epoch:
-		for l in [8]:#layers:
+	for e in epoch:
+		for l in layers:
 			workerInputs.append([str(l),pathName(e,l),symbName(e,l)])
 	argCounter = 0
 	numProcesses = int(sys.argv[1])
