@@ -21,7 +21,7 @@ def main(argv):
 	numVertices = int(argv[0])
 	path = argv[1]
 	symbName = argv[2]
-	
+
 	try:
 		os.makedirs(savePathUnweighted+symbolicName)
 	except:
@@ -65,6 +65,7 @@ This function takes the matrix, and runs the connetion algorithm on it. The matr
 '''
 def addConnectionsToMatrix():
 	matrix = makeWeightAbsoluteDistance(computeHomology.get_adjacency_matrix(generateMatrixSavePath()))
+	os.remove(generateMatrixSavePath())
 	outputLayerEnd = matrix.shape[0]
 	outputLayerStart = outputLayerEnd - outputVertices
 	
