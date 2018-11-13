@@ -34,11 +34,3 @@ if __name__=="__main__":
 				argCounter += 1
 				pool[num].start()
 		time.sleep(1)
-
-
-
-'''
-How did the weights change in this same time period 
-Is the drop off proportional to the 
-'''
-
