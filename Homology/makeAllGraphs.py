@@ -42,17 +42,17 @@ def main(argv):
 	saveBinary(matrices, saveName)
 
 def getUnweightedAdjacencyMatrixNoBias(cutoff):
-	w1 = np.loadtxt(path+'W1.npy', delimiter=',')
-	w2 = np.loadtxt(path+'W2.npy', delimiter=',')
+	w1 = np.load(path+'_W1.npy')
+	w2 = np.load(path+'_W2.npy')
 	G = makeGraphNoBias.makeGraph([w1,w2], cutoff)
 	print('Vertices:', len(G[0]),'\tEdges:',len(G[1]))
 	return graphToAdjacencyMatrix(G)
 
 def getUnweightedAdjacencyMatrix(cutoff):
-	w1 = np.loadtxt(path+'W1.npy', delimiter=',')
-	w2 = np.loadtxt(path+'W2.npy', delimiter=',')
-	b1 = np.loadtxt(path+'b1.npy', delimiter=',')
-	b2 = np.loadtxt(path+'b2.npy', delimiter=',')
+	w1 = np.load(path+'_W1.npy')
+	w2 = np.load(path+'_W2.npy')
+	b1 = np.load(path+'_b1.npy')
+	b2 = np.load(path+'_b2.npy')
 	b1 = np.reshape(b1, (1, -1))
 	b2 = np.reshape(b2, (1, -1))
 	G = makeGraph.makeGraph([w1,w2],[b1,b2], cutoff)
@@ -61,10 +61,10 @@ def getUnweightedAdjacencyMatrix(cutoff):
 
 def getWeightedAdjacencyMatrix():
 	
-	w1 = np.loadtxt(path+'W1.npy', delimiter=',')
-	w2 = np.loadtxt(path+'W2.npy', delimiter=',')
-	b1 = np.loadtxt(path+'b1.npy', delimiter=',')
-	b2 = np.loadtxt(path+'b2.npy', delimiter=',')
+	w1 = np.load(path+'_W1.npy')
+	w2 = np.load(path+'_W2.npy')
+	b1 = np.load(path+'_b1.npy')
+	b2 = np.load(path+'_b2.npy')
 	b1 = np.reshape(b1, (1, -1))
 	b2 = np.reshape(b2, (1, -1))
 
@@ -90,8 +90,8 @@ def getWeightedAdjacencyMatrix():
 
 def getWeightedAdjacencyMatrixNoBias():
 
-	w1 = np.loadtxt(path+'W1.npy', delimiter=',')
-	w2 = np.loadtxt(path+'W2.npy', delimiter=',')
+	w1 = np.load(path+'_W1.npy')
+	w2 = np.load(path+'_W2.npy')
 
 	dim = w1.shape[0] + w2.shape[0] + w2.shape[1]
 	m = np.zeros((dim,dim))
