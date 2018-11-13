@@ -21,6 +21,15 @@ def main(argv):
 	numVertices = int(argv[0])
 	path = argv[1]
 	symbName = argv[2]
+	
+	try:
+		os.makedirs(savePathUnweighted+symbolicName)
+	except:
+		print("Matrices already exist for: "+symbolicName)
+		if os.path.isfile(generateBettiSavePath()):
+			print("Betti data already exists for: "+symbolicName)
+			return
+
 	generateRawAdjacencyMatrix()
 	matrix = addConnectionsToMatrix()
 	matrix = renormalizeMatrixLayers(matrix)
