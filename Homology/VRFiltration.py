@@ -1,13 +1,13 @@
-import sys, makeAllGraphs, getCutoffsAndHomology, computeHomology
+import sys, makeAllGraphs, getCutoffsAndHomology, computeHomology, os
+import numpy as np
 from ripser import Rips
 
-
-numVertices = 0
+numVertices = -1
 inputVertices = 784
 outputVertices = 10
-symbName = ""
 path = ""
 savePath = "/home/ec2-user/ShapeOfLearning/Homology/BettiData/"
+symbName = ""
 
 '''
 This function goes to the file specified by path, and creates a weighted, unbiased adjacency matrix.
@@ -17,48 +17,55 @@ are renormalized to be between 0 and 1, and the betti numbers are computed.
 def main(argv):
 	global numVertices
 	global symbName
+	global path
 	numVertices = int(argv[0])
-	symbName = argv[1]
-	path = argv[2]
+	path = argv[1]
+	symbName = argv[2]
+
+	try:
+		os.makedirs(savePathUnweighted+symbolicName)
+	except:
+		print("Matrices already exist for: "+symbolicName)
+		if os.path.isfile(generateBettiSavePath()):
+			print("Betti data already exists for: "+symbolicName)
+			return
 
 	generateRawAdjacencyMatrix()
 	matrix = addConnectionsToMatrix()
 	matrix = renormalizeMatrixLayers(matrix)
-	runVRFiltration(matrix)
+	runBetti(matrix)
 	return
-
 
 '''
 This function returns the location to which the raw matrix (uncomputed) will be saved
 '''
 def generateMatrixSavePath():
-	return savePath + symbName + ".npy"
+	return savePath + symbName + "/"+"savedMatrix.npy"
 
 '''
 This function returns the location to which the computed betti numbers will be saved
 '''
 def generateBettiSavePath():
-	return savePath + symbName + "_BettiData.txt"
+	return savePath + symbName + "/NewMethod_BettiData.txt"
 
 '''
 This function returns the location to which the cutoff matrix should be saved
 '''
 def generateCutoffSavePath(cutoff):
-	return savePath + symbName + str(cutoff)
+	return savePath + symbName + "/temp"+str(cutoff)
 
 '''
-This function calls makeAllGraphs, and generates the raw adjacency matrix. This is
-saved in the savePath location
+This function calls makeAllGraphs, and generates the raw adjacency matrix. This is saved in the savePath location
 '''
 def generateRawAdjacencyMatrix():
-	makeAllGraphs.main(["","0","-w","-b",generateMatrixSavePath(),path])
+	makeAllGraphs.main(["","0","-w","-nb",generateMatrixSavePath(),path])
 
 '''
-This function takes the matrix, and runs the connetion algorithm on it. The matrix
-is then returned
+This function takes the matrix, and runs the connetion algorithm on it. The matrix is then returned
 '''
 def addConnectionsToMatrix():
-	matrix = convertWeightToDistance(computeHomology.get_adjacency_matrix(generateMatrixSavePath()))
+	matrix = makeWeightAbsoluteDistance(computeHomology.get_adjacency_matrix(generateMatrixSavePath()))
+	os.remove(generateMatrixSavePath())
 	outputLayerEnd = matrix.shape[0]
 	outputLayerStart = outputLayerEnd - outputVertices
 	
@@ -73,30 +80,34 @@ def addConnectionsToMatrix():
 	currLayerStart = inputVertices
 	currLayerEnd = inputVertices + numVertices
 
-	while(currLayerEnd<=outputLayerStart-numVertices):
+	while(currLayerEnd<=outputLayerStart):
 		for v1 in range(currLayerStart,currLayerEnd-1):
 			for v2 in range(v1+1,currLayerEnd):
-				connectionStrength = -1
+				connectionStrengthPrev = -1
+				connectionStrengthNext = -1
+
 				if (currLayerStart==inputVertices):
 					connectionStrengthPrev = getConnectionForLayer(matrix,v1,v2,0,inputVertices)
-					connectionStrengthNext = getConnectionForLayer(matrix,v1,v2,currLayerEnd+numVertices,currLayerEnd+2*numVertices)
-					connectionStrength = (connectionStrengthNext + connectionStrengthPrev) / 2
-				elif (currLayerEnd+numVertices==outputLayerStart):
-					connectionStrengthPrev = getConnectionForLayer(matrix,v1,v2,currLayerStart-2*numVertices,currLayerStart-numVertices)
-					connectionStrengthNext = getConnectionForLayer(matrix,v1,v2,outputLayerStart,outputLayerEnd)
-					connectionStrength = (connectionStrengthNext + connectionStrengthPrev) / 2
 				else:
-					connectionStrengthPrev = getConnectionForLayer(matrix,v1,v2,currLayerStart-2*numVertices,currLayerStart-numVertices)
-					connectionStrengthNext = getConnectionForLayer(matrix,v1,v2,currLayerEnd+numVertices,currLayerEnd+2*numVertices)
+					connectionStrengthPrev = getConnectionForLayer(matrix,v1,v2,v1 - numVertices,v1)
+
+				if (currLayerEnd==outputLayerStart):
+					connectionStrengthNext = getConnectionForLayer(matrix,v1,v2,outputLayerStart,outputLayerEnd)
+				else:
+					connectionStrengthNext = getConnectionForLayer(matrix,v1,v2,v2,v2 + numVertices)
+
+				connectionStrength = (connectionStrengthNext + connectionStrengthPrev) / 2 
+
 				matrix.itemset((v1,v2),connectionStrength)
 				matrix.itemset((v2,v1),connectionStrength)
-		currLayerStart += 2*numVertices
-		currLayerEnd += 2*numVertices
+
+		currLayerStart += numVertices
+		currLayerEnd += numVertices
 
 	#process output layer
 	for v1 in range(outputLayerStart,outputLayerEnd-1):
 		for v2 in range(v1+1,outputLayerEnd):
-			connectionStrength = getConnectionForLayer(matrix,v1,v2,outputLayerStart - 2*numVertices, outputLayerStart-numVertices)
+			connectionStrength = getConnectionForLayer(matrix,v1,v2,outputLayerStart - numVertices, outputLayerStart)
 			matrix.itemset((v1,v2),connectionStrength)
 			matrix.itemset((v2,v1),connectionStrength)
 
@@ -104,7 +115,7 @@ def addConnectionsToMatrix():
 
 '''
 This function takes each vertex in the layer, and calculates the connection strength.
-The total connection strength is then averaged for 90%-100%, and returned.
+The total connection strength is then averaged for 40%-60%, and returned.
 '''
 def getConnectionForLayer(matrix,v1,v2,start,end):
 	allConnections = []
@@ -115,8 +126,8 @@ def getConnectionForLayer(matrix,v1,v2,start,end):
 	allConnections.sort()
 
 	totalConnection = 0
-	listStart = len(allConnections)*0.9
-	listEnd = len(allConnections)
+	listStart = int(len(allConnections)*0.4)
+	listEnd = int(len(allConnections)*0.6)
 	for i in range(listStart,listEnd):
 		totalConnection += allConnections[i]
 
@@ -126,12 +137,12 @@ def getConnectionForLayer(matrix,v1,v2,start,end):
 This function takes in a matrix with entries representing weights between pairs of vertices, 
 and returns a transformed matrix with each entry being 1/the weight
 '''
-def convertWeightToDistance(matrix):
+def makeWeightAbsoluteDistance(matrix):
 	for i in range(0,matrix.shape[0]):
 		for j in range(0,matrix.shape[0]):
 			currItem = matrix.item(i,j)
 			if not currItem==0:
-				matrix.itemset((i,j),1/currItem)
+				matrix.itemset((i,j),abs(1/currItem))
 	return matrix
 
 '''
@@ -147,16 +158,18 @@ def renormalizeMatrixLayers(matrix):
 	currEnd = inputVertices + numVertices
 	renormalizeLayer(matrix,0,inputVertices,currStart,currEnd)
 
-	while(currEnd+numVertices<=outputLayerEnd):
+	while(currEnd<=outputLayerStart):
 		renormalizeLayer(matrix,currStart,currEnd,-1,-1)
-		if (currEnd+numVertices==outputLayerStart):
+		if (currEnd==outputLayerStart):
 			renormalizeLayer(matrix,currStart,currEnd,outputLayerStart,outputLayerEnd)
 		else:
-			renormalizeLayer(matrix,currStart,currEnd,currStart + 2*numVertices,currEnd + 2*numVertices)
-		currStart += 2*numVertices
-		currEnd += 2*numVertices
+			renormalizeLayer(matrix,currStart,currEnd,currStart + numVertices,currEnd + numVertices)
+		currStart += numVertices
+		currEnd += numVertices
 
-	renormalizeLayer(matrix,outputLayerStart,outputLayerEnd)
+	renormalizeLayer(matrix,outputLayerStart,outputLayerEnd, -1, -1)
+
+	return matrix
 
 '''
 This function normalizes a layer of a matrix. If nextStart and nextEnd are -1, 
@@ -165,22 +178,25 @@ then you normalize within the layer rather than between layers
 def renormalizeLayer(matrix,start,end,nextStart,nextEnd):
 	currMax = -1
 	if (nextStart==-1 and nextEnd==-1):
-		nextStart = start + 1
+		nextStart = start
 		nextEnd = end 
-	else:
-		end = end + 1
 
-	for v1 in range(start,end-1):
+	for v1 in range(start,end):
 		for v2 in range(nextStart,nextEnd):
 			currEdge = matrix.item(v1,v2)
 			if currEdge > currMax:
 				currMax = currEdge
 
-	for v1 in range(start,end-1):
-		for v2 in range(nextStart,nextEnd):
-			currItem = matrix.item(v1,v2)/currMax
-			matrix.itemset((v1,v2),currItem)
-			matrix.itemSet((v2,v1),currItem)
+	if start==nextStart and end==nextEnd:
+		for v1 in range(start,end):
+			for v2 in range(start,end):
+				matrix.itemset((v1,v2),matrix.item(v1,v2)/currMax)
+	else:
+		for v1 in range(start,end):
+			for v2 in range(nextStart,nextEnd):
+				currItem = matrix.item(v1,v2)/currMax
+				matrix.itemset((v1,v2),currItem)
+				matrix.itemset((v2,v1),currItem)
 
 '''
 This function takes a matrix, and runs the betti calculations for each cutoff
@@ -190,9 +206,10 @@ def runBetti(matrix):
 	allBetti = []
 	for cutoff in cutoffs:
 		cutoffMatrix = getCutoffMatrix(matrix,cutoff)
-		numpy.save(generateCutoffSavePath(cutoff),cutoffMatrix)
+		np.save(generateCutoffSavePath(cutoff),cutoffMatrix)
 		betti0,betti1 = computeHomology.main([generateCutoffSavePath(cutoff)+".npy"])
 		allBetti.append([betti0,betti1])
+		os.remove(generateCutoffSavePath(cutoff)+".npy")
 
 		print("Cutoff: "+str(cutoff)+", Betti0: "+str(betti0)+", Betti1: "+str(betti1))
 
@@ -203,17 +220,16 @@ def runBetti(matrix):
 This function takes a matrix and a cutoff, and removes all edges lower than the cutoff
 '''
 def getCutoffMatrix(matrix,cutoff):
-	newMatrix = numpy.zeros(matrix.shape)
+	newMatrix = np.zeros(matrix.shape)
 
 	for i in range(0,matrix.shape[0]):
 		for j in range(0,matrix.shape[0]):
 			currItem = matrix.item(i,j)
-			if (currItem>=cutoff):
-				newMatrix.itemset((i,j),currItem)
+			if (currItem<=cutoff):
+				newMatrix.itemset((i,j),1)
 			else:
 				newMatrix.itemset((i,j),0)
 	return newMatrix
-
 def runVRFiltration(matrix):
 	rips = Rips()
 	diagrams = rips.fit_transform(matrix)
