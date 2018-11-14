@@ -2,7 +2,7 @@ import numpy,sys,os
 import matplotlib
 matplotlib.use('agg',warn=False, force=True)
 import matplotlib.pyplot as plt
-import JoeMethod
+from scipy.sparse import dok_matrix
 
 '''
 Computes betti 0 and betti1 for an abstract graph saved as an adjacency matrix.
@@ -66,14 +66,14 @@ def count_edges(matrix):
 	edge_list = []
 	for i in range(0,vertices):
 		for j in range(i,vertices):
-			if matrix.item(i,j)==1:
+			if matrix[i,j]==1:
 				edges+=1
 				edge_list.append((i,j))
 	return (vertices,edges,edge_list)
 
 #makes the boundary matrix and returns it
 def make_boundary(vertices,edges,edge_list):
-	b_matrix = numpy.zeros((vertices+edges,vertices+edges),dtype=numpy.int32)
+	b_matrix = dok_matrix((vertices+edges,vertices+edges),dtype=int)
 	for num, (i,j) in enumerate(edge_list):
 		index = num + vertices
 		b_matrix[i,index] = 1
@@ -89,7 +89,7 @@ def get_lowest_ones():
 #returns the index of the lowest 1 in a column
 def get_low(j):
 	for i in range(b_size-1,-1,-1):
-		if b_mat.item(i,j)==1:
+		if b_mat[i,j]==1:
 			return i
 	return -1
 
@@ -107,8 +107,8 @@ def add_column(low,high):
 	global b_mat
 	global lowest_ones
 	for i in range(0,b_size):
-		if b_mat.item(i,low)==1:
-			if b_mat.item(i,high)==1:
+		if b_mat[i,low]==1:
+			if b_mat[i,high]==1:
 				b_mat[i,high]=0
 			else:
 				b_mat[i,high]=1
