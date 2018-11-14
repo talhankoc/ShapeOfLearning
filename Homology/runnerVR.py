@@ -4,7 +4,7 @@ from multiprocessing import Process
 epoch = [i for i in range(1,51)]
 layers = [8,16,24,32,40,48]
 
-constant = "/home/ec2-user/ShapeOfLearning/NNGeneration/Saved Models/Fashion - Each Epoch/"
+constant = "/Users/tkoc/Code/ShapeOfLearning/NNGeneration/Saved Models/Fashion - Each Epoch/"
 
 def symbName(e,l):
 	return "Fashion2_"+str(e)+"_"+str(l)
@@ -25,7 +25,7 @@ if __name__=="__main__":
 			args=(workerInputs[argCounter],)))
 		argCounter += 1
 		pool[num].start()
-
+'''
 	while argCounter< len(workerInputs):
 		for num in range(0,numProcesses):
 			if (pool[num].is_alive()!=True):
@@ -34,3 +34,4 @@ if __name__=="__main__":
 				argCounter += 1
 				pool[num].start()
 		time.sleep(1)
+'''

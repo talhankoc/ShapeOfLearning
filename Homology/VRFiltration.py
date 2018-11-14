@@ -1,12 +1,14 @@
 import sys, makeAllGraphs, getCutoffsAndHomology, computeHomology, os
 import numpy as np
+from ripser import ripser, plot_dgms
 from ripser import Rips
+
 
 numVertices = -1
 inputVertices = 784
 outputVertices = 10
 path = ""
-savePath = "/home/ec2-user/ShapeOfLearning/Homology/BettiData/"
+savePath = "/Users/tkoc/Code/ShapeOfLearning/Homology/BettiDataVR/"
 symbName = ""
 
 '''
@@ -23,17 +25,20 @@ def main(argv):
 	symbName = argv[2]
 
 	try:
-		os.makedirs(savePathUnweighted+symbolicName)
+		os.makedirs(savePath + symbName)
 	except:
-		print("Matrices already exist for: "+symbolicName)
 		if os.path.isfile(generateBettiSavePath()):
-			print("Betti data already exists for: "+symbolicName)
+			print("Betti data already exists for: "+symbName)
 			return
 
+	print('generateRawAdjacencyMatrix')
 	generateRawAdjacencyMatrix()
+	print('addConnectionsToMatrix')
 	matrix = addConnectionsToMatrix()
+	print('renormalizeMatrixLayers')
 	matrix = renormalizeMatrixLayers(matrix)
-	runBetti(matrix)
+	print('runVRFiltration')
+	runVRFiltration(matrix)
 	return
 
 '''
@@ -230,10 +235,20 @@ def getCutoffMatrix(matrix,cutoff):
 			else:
 				newMatrix.itemset((i,j),0)
 	return newMatrix
+	
 def runVRFiltration(matrix):
-	rips = Rips()
-	diagrams = rips.fit_transform(matrix)
-	rips.plot(diagrams)
+	ret = ripser(matrix, distance_matrix=True)
+	diagrams = ret['dgms']
+
+	print(ret.keys())
+	print(ret['num_edges'])
+	print('***Size of dgms\t',len(dgms[0]), len(dgms[1]))
+	print(dgms[0])
+	print(dgms[0][0])
+	print(dgms[0][1].size)
+	print(type(dgms[0][2]))
+
+	plot_dgms(diagrams, show=True)
 
 if __name__ == "__main__":
 	main(sys.argv[1:])
