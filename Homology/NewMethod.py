@@ -23,11 +23,10 @@ def main(argv):
 	symbName = argv[2]
 
 	try:
-		os.makedirs(savePathUnweighted+symbolicName)
+		os.makedirs(savePath + symbName)
 	except:
-		print("Matrices already exist for: "+symbolicName)
 		if os.path.isfile(generateBettiSavePath()):
-			print("Betti data already exists for: "+symbolicName)
+			print("Betti data already exists for: "+symbName)
 			return
 
 	generateRawAdjacencyMatrix()
