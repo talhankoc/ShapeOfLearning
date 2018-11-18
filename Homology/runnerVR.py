@@ -25,13 +25,11 @@ if __name__=="__main__":
 			args=(workerInputs[argCounter],)))
 		argCounter += 1
 		pool[num].start()
-'''
 	while argCounter< len(workerInputs):
 		for num in range(0,numProcesses):
 			if (pool[num].is_alive()!=True):
-				pool[num] = Process(target=getCutoffsAndHomology.main,
+				pool[num] = Process(target=VRFiltration.main,
 					args=(workerInputs[argCounter],))
 				argCounter += 1
 				pool[num].start()
 		time.sleep(1)
-'''

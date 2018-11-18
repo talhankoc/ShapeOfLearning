@@ -2,6 +2,7 @@ import sys, makeAllGraphs, getCutoffsAndHomology, computeHomology, os
 import numpy as np
 from ripser import ripser, plot_dgms
 from ripser import Rips
+import pickle
 
 
 numVertices = -1
@@ -31,13 +32,12 @@ def main(argv):
 			print("Betti data already exists for: "+symbName)
 			return
 
-	print('generateRawAdjacencyMatrix')
+	print('Preprocessing matrix...')
 	generateRawAdjacencyMatrix()
-	print('addConnectionsToMatrix')
 	matrix = addConnectionsToMatrix()
-	print('renormalizeMatrixLayers')
 	matrix = renormalizeMatrixLayers(matrix)
-	print('runVRFiltration')
+	matrix = removeZeros(matrix)
+	print('Running VR Filtration...')
 	runVRFiltration(matrix)
 	return
 
@@ -51,7 +51,7 @@ def generateMatrixSavePath():
 This function returns the location to which the computed betti numbers will be saved
 '''
 def generateBettiSavePath():
-	return savePath + symbName + "/NewMethod_BettiData.txt"
+	return savePath + symbName + "/VRFiltration_BettiData.txt"
 
 '''
 This function returns the location to which the cutoff matrix should be saved
@@ -203,43 +203,18 @@ def renormalizeLayer(matrix,start,end,nextStart,nextEnd):
 				matrix.itemset((v1,v2),currItem)
 				matrix.itemset((v2,v1),currItem)
 
-'''
-This function takes a matrix, and runs the betti calculations for each cutoff
-'''
-def runBetti(matrix):
-	cutoffs = getCutoffsAndHomology.generateAllCutoffSteps(0.05,1,0.05)
-	allBetti = []
-	for cutoff in cutoffs:
-		cutoffMatrix = getCutoffMatrix(matrix,cutoff)
-		np.save(generateCutoffSavePath(cutoff),cutoffMatrix)
-		betti0,betti1 = computeHomology.main([generateCutoffSavePath(cutoff)+".npy"])
-		allBetti.append([betti0,betti1])
-		os.remove(generateCutoffSavePath(cutoff)+".npy")
+def removeZeros(matrix):
+	for i in range(matrix.shape[0]):
+		for j in range(matrix.shape[1]):
+			if i != j and matrix.item(i,j) == 0:
+				matrix.itemset((i,j), float('inf'))
+	return matrix
 
-		print("Cutoff: "+str(cutoff)+", Betti0: "+str(betti0)+", Betti1: "+str(betti1))
 
-	np.savetxt(generateBettiSavePath(),np.array(allBetti))
-	return
-
-'''
-This function takes a matrix and a cutoff, and removes all edges lower than the cutoff
-'''
-def getCutoffMatrix(matrix,cutoff):
-	newMatrix = np.zeros(matrix.shape)
-
-	for i in range(0,matrix.shape[0]):
-		for j in range(0,matrix.shape[0]):
-			currItem = matrix.item(i,j)
-			if (currItem<=cutoff):
-				newMatrix.itemset((i,j),1)
-			else:
-				newMatrix.itemset((i,j),0)
-	return newMatrix
-	
 def runVRFiltration(matrix):
 	ret = ripser(matrix, distance_matrix=True)
 	diagrams = ret['dgms']
-
+	'''
 	print(ret.keys())
 	print(ret['num_edges'])
 	print('***Size of dgms\t',len(dgms[0]), len(dgms[1]))
@@ -247,8 +222,11 @@ def runVRFiltration(matrix):
 	print(dgms[0][0])
 	print(dgms[0][1].size)
 	print(type(dgms[0][2]))
-
+	'''
 	plot_dgms(diagrams, show=True)
+	generateBettiSavePath()
+	with open(generateBettiSavePath(), "wb") as f:
+		pickle.dump(diagrams, f)
 
 if __name__ == "__main__":
 	main(sys.argv[1:])
