@@ -34,9 +34,9 @@ def main(argv):
 
 	print('Preprocessing matrix...')
 	generateRawAdjacencyMatrix()
-	matrix = addConnectionsToMatrix()
-	matrix = renormalizeMatrixLayers(matrix)
 	matrix = removeZeros(matrix)
+	print('Running Floyd-Warshall...')
+	matrix = FloydWarshall(matrix)
 	print('Running VR Filtration...')
 	runVRFiltration(matrix)
 	return
@@ -210,6 +210,15 @@ def removeZeros(matrix):
 				matrix.itemset((i,j), float('inf'))
 	return matrix
 
+def FloydWarshall(matrix):
+	numVertices = matrix.shape[0]
+	for k in range(0,numVertices):
+		for i in range(0,numVertices):
+			for j in range(0,numVertices):
+				if matrix.item(i,j) > matrix.item(i,k) + matrix.item(k,j) 
+             		matrix.itemset((i,j),matrix.item(i,k) + matrix.item(k,j))
+    return matrix
+
 
 def runVRFiltration(matrix):
 	ret = ripser(matrix, distance_matrix=True)
@@ -219,12 +228,11 @@ def runVRFiltration(matrix):
 	print(ret['num_edges'])
 	print('***Size of dgms\t',len(dgms[0]), len(dgms[1]))
 	print(dgms[0])
-	print(dgms[0][0])
-	print(dgms[0][1].size)
-	print(type(dgms[0][2]))
+	print(dgms[0,0])
+	print(dgms[0,1].size)
+	print(type(dgms[0,2]))
 	'''
 	plot_dgms(diagrams, show=True)
-	generateBettiSavePath()
 	with open(generateBettiSavePath(), "wb") as f:
 		pickle.dump(diagrams, f)
 
