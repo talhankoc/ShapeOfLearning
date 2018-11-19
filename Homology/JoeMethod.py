@@ -52,7 +52,6 @@ def runDijkstra(distanceMatrix,vertex):
 		if distanceMatrix.item(currVertex, vertex)==0:
 			distanceMatrix.itemset((currVertex,vertex),distanceToVertex[currVertex])
 			distanceMatrix.itemset((vertex,currVertex),distanceToVertex[currVertex])
-
 	return
 
 '''
