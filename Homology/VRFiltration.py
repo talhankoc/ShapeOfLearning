@@ -10,7 +10,7 @@ numVertices = -1
 inputVertices = 784
 outputVertices = 10
 path = ""
-savePath = "/Users/tkoc/Code/ShapeOfLearning/Homology/BettiDataVRTest/"
+savePath = "/Users/tkoc/Code/ShapeOfLearning/Homology/Betti2DataFloydVR/"
 symbName = ""
 
 '''
@@ -273,7 +273,7 @@ def floyd_warshall_fastest(adjacency_matrix):
 
 
 def runVRFiltration(matrix):
-	ret = ripser(matrix, distance_matrix=True)
+	ret = ripser(matrix, maxdim=2, distance_matrix=True)
 	diagrams = ret['dgms']
 	'''
 	print(ret.keys())
