@@ -85,7 +85,7 @@ def addConnectionsToMatrix():
 				connectionStrengthPrev = -1
 				connectionStrengthNext = -1
 
-				if (currLayerStart==inputVertices):
+				if (currLayerStart == inputVertices):
 					connectionStrengthPrev = getConnectionForLayer(matrix,v1,v2,0,inputVertices)
 				else:
 					connectionStrengthPrev = getConnectionForLayer(matrix,v1,v2,v1 - numVertices,v1)
