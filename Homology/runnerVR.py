@@ -1,4 +1,5 @@
-import VRFiltration, sys, time
+import VRFiltrationSingleLayer as VRFiltration
+import sys, time
 from multiprocessing import Process
 
 epoch = [i for i in range(1,51)]

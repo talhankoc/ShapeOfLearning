@@ -10,7 +10,7 @@ numVertices = -1
 inputVertices = 784
 outputVertices = 10
 path = ""
-savePath = "/Users/tkoc/Code/ShapeOfLearning/Homology/FloydVRSingleLayer/"
+savePath = "/Users/tkoc/Code/ShapeOfLearning/Homology/FloydVRInputLayer/"
 symbName = ""
 
 '''
@@ -34,7 +34,7 @@ def main(argv):
 			return
 
 	print('Obtaining adjacency matrix...')
-	matrix = loadMatrixSecondLayer(path + '_W2.npy')
+	matrix = generateLayerMatrix(path + '_W1.npy')
 	print('Transforming weight matrix into distance matrix...')
 	matrix = makeWeightAbsoluteDistance(matrix)
 	#matrix = makeWeightDistance(matrix)
@@ -78,7 +78,7 @@ def generateRawAdjacencyMatrix():
 '''
 Function to load the second layer of the matrix with given folder path
 '''
-def loadMatrixSecondLayer(path):
+def generateLayerMatrix(path):
 	matrix = np.load(path)
 	dim = matrix.shape[0] + matrix.shape[1]
 	ret = np.zeros((dim,dim))
@@ -165,7 +165,7 @@ def floyd_warshall_fastest(adjacency_matrix):
 
 
 def runVRFiltration(matrix):
-	ret = ripser(matrix, maxdim=2, distance_matrix=True)
+	ret = ripser(matrix, maxdim=1, distance_matrix=True)
 	diagrams = ret['dgms']
 	'''
 	print(ret.keys())

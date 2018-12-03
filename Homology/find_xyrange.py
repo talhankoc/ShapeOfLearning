@@ -1,7 +1,7 @@
 import pickle
 import numpy as np
 
-path = '/Users/tkoc/Code/ShapeOfLearning/Homology/BettiDataFloydVR/'
+path = '/Users/tkoc/Code/ShapeOfLearning/Homology/FloydVRInputLayer/'
 file_name = 'VRFiltration_BettiData.txt'
 folder_prefix = 'Fashion2_'
 layer_sizes = [8,16,24,32,40,48]
@@ -26,4 +26,4 @@ for layer_size in layer_sizes:
 				min_x = ax_min
 	layer_xy_values.append((max_x,min_x))
 
-print(layer_xy_values)
+print([x[0] for x in layer_xy_values])

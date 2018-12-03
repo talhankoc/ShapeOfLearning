@@ -179,12 +179,23 @@ def plot_dgms(
 
 
 #-----------------------------------------#
-path = '/Users/tkoc/Code/ShapeOfLearning/Homology/BettiDataFloydVR/'
+path = '/Users/tkoc/Code/ShapeOfLearning/Homology/FloydVRInputLayer/'
 file_name = 'VRFiltration_BettiData.txt'
 folder_prefix = 'Fashion2_'
 layer_sizes = [8,16,24,32,40,48]
-layer_xy_values = [32.5, 20.5, 16.5, 15.9, 14.3, 14.5]
 epochs = 50
+
+
+#FloydVRInputLayer
+layer_xy_values = [29.518257, 19.735643, 19.655315, 20.1538, 19.606615, 19.76956]
+
+# FloydVROutputLayer
+#layer_xy_values = [4.516148, 5.142353, 5.3599305, 5.422422, 6.338068, 6.795538]
+
+#
+#layer_xy_values = [32.5, 20.5, 16.5, 15.9, 14.3, 14.5]
+
+
 
 for layer_size, x_range in zip(layer_sizes,layer_xy_values):
 	for epoch in range(1, epochs+1):
@@ -196,10 +207,17 @@ for layer_size, x_range in zip(layer_sizes,layer_xy_values):
 			#calculate and save some basic facts about betti persistance
 			h0_total = len(diagrams[0])
 			h1_total = len(diagrams[1])
+			#h2_total = len(diagrams[2])
+
 			avg_h0_life = sum([ y-x for x,y in diagrams[0] if y != inf ])/h0_total
 			avg_h1_life = sum([ y-x for x,y in diagrams[1] if y != inf ])/h1_total
+			# if h2_total != 0:
+			# 	avg_h2_life = sum([ y-x for x,y in diagrams[2] if y != inf ])/h2_total
+			# else:
+			# 	avg_h2_life = 0
+
 			with open(folder_path + 'analysis.txt', 'wb') as f2:
-				pickle.dump([h0_total,h1_total,avg_h0_life,avg_h1_life], f2)
+				pickle.dump([h0_total,h1_total, avg_h0_life,avg_h1_life], f2)
 
 			
 			print('Layer',layer_size, '\tepoch', epoch)
@@ -213,4 +231,3 @@ for layer_size, x_range in zip(layer_sizes,layer_xy_values):
 				title='Layer Size='+str(layer_size)+', Epoch='+str(epoch),
 				save_path=folder_path+'lifetime.png', 
 				xy_range=[-1,x_range,-1,x_range], lifetime=True,)
-

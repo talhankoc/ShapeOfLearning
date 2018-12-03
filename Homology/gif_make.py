@@ -1,6 +1,6 @@
 import imageio
 
-path = '/Users/tkoc/Code/ShapeOfLearning/Homology/BettiDataFloydVR/'
+path = '/Users/tkoc/Code/ShapeOfLearning/Homology/FloydVRInputLayer/'
 gif_path = path + 'GIFs/'
 file_name = 'VRFiltration_BettiData.txt'
 folder_prefix = 'Fashion2_'
