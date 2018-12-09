@@ -1,14 +1,15 @@
 import numpy as np
 import os, sys, pickle, re
 
-path = "/Users/kunaalsharma/Desktop/Math 493/ShapeOfLearning/Homology/BettiDataFloydVR/"
+path = "/Users/kunaalsharma/Desktop/Math 493/ShapeOfLearning/Homology/DigitsFull/"
 analysis = "/analysis.txt"
 
 def getName(e,w):
-    return "Fashion2_"+ str(e) + "_" + str(w)
+    return "Digits_"+ str(e) + "_" + str(w)
 
 def calculateGradient(points):
     return [np.abs(points[i]-points[i-1]) for i in range(1,len(points))]
+    #return [np.abs(points[i]-(sum(points[i+1:i+numPoints+1]))/numPoints) for i in range(0,len(points)-(numPoints+1))]
 
 def getStopping(points):
     stoppingVal = 0.005
@@ -28,7 +29,7 @@ def getTestingStopping(points):
     return -1
 
 def getTestingData(w):
-    testPath = "/Users/kunaalsharma/Desktop/Math 493/ShapeOfLearning/NNGeneration/Saved Models/Fashion - Each Epoch/"
+    testPath = "/Users/kunaalsharma/Desktop/Math 493/ShapeOfLearning/NNGeneration/Saved Models/Digits - Each Epoch/Scores/"
 
     fn_pre = 'HiddenLayerNodeCount'
     fn_post = '_Scores.txt'
