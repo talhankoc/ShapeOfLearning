@@ -6,11 +6,10 @@ from ripser import Rips
 import pickle
 
 
-numVertices = -1
-inputVertices = 784
+numVertices = 1024
 outputVertices = 10
 path = ""
-savePath = "/Users/tkoc/Code/ShapeOfLearning/Homology/Betti2DataFloydVR/"
+savePath = "/Users/kunaalsharma/Desktop/MATH 494/MATH 493/ShapeOfLearning/Homology/BettiDataVR/"
 symbName = ""
 
 '''
@@ -34,8 +33,7 @@ def main(argv):
 			return
 
 	print('Obtaining adjacency matrix...')
-	generateRawAdjacencyMatrix()
-	matrix = computeHomology.get_adjacency_matrix(generateMatrixSavePath())
+	matrix = generateRawAdjacencyMatrix()
 	print('Transforming weight matrix into distance matrix...')
 	matrix = makeWeightAbsoluteDistance(matrix)
 	#matrix = makeWeightDistance(matrix)
@@ -45,12 +43,6 @@ def main(argv):
 	print('Running VR Filtration...')
 	runVRFiltration(matrix)
 	return
-
-'''
-This function returns the location to which the raw matrix (uncomputed) will be saved
-'''
-def generateMatrixSavePath():
-	return savePath + symbName + "/"+"savedMatrix.npy"
 
 '''
 This function returns the location to which the shortest distance matrix will be saved
@@ -74,7 +66,10 @@ def generateCutoffSavePath(cutoff):
 This function calls makeAllGraphs, and generates the raw adjacency matrix. This is saved in the savePath location
 '''
 def generateRawAdjacencyMatrix():
-	makeAllGraphs.main(["","0","-w","-nb",generateMatrixSavePath(),path])
+	if os.path.isfile(generateMatrixSavePath()):
+		print("Shortest distance matrix already exists...")
+		return
+	return makeAllGraphs.main(["","0","-w","-nb",generateMatrixSavePath(),path])
 
 
 '''
@@ -161,8 +156,10 @@ def runVRFiltration(matrix):
 	print(dgms[0,1].size)
 	print(type(dgms[0,2]))
 	'''
+
 	plot_dgms(diagrams, show=True)
 	with open(generateBettiSavePath(), "wb") as f:
+		print("About to save diagrams...."+generateBettiSavePath())
 		pickle.dump(diagrams, f)
 
 if __name__ == "__main__":

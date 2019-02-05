@@ -1,23 +1,22 @@
-import VRFiltrationSingleLayer as VRFiltration
+import VRFiltration
 import sys, time
 from multiprocessing import Process
 
-epoch = [i for i in range(1,51)]
-layers = [8,16,24,32,40,48]
+epoch = [i for i in range(1,62)]
 
-constant = "/Users/tkoc/Code/ShapeOfLearning/NNGeneration/Saved Models/Fashion - Each Epoch/"
+constant = "/Users/kunaalsharma/Desktop/MATH 494/MATH 493/ShapeOfLearning/NNGeneration/Saved Models/CIFAR-10/"
 
-def symbName(e,l):
-	return "Fashion2_"+str(e)+"_"+str(l)
+def symbName(e):
+	return "CIFAR-10_"+str(e)
 
-def pathName(e,l):
-	return constant + "NN-Fashion-"+str(l)+"__Epoch"+str(e)
+def pathName(e):
+	return constant + "MODEL_Epoch"+str(e)
 
 if __name__=="__main__":
 	workerInputs = []
 	for e in epoch:
-		for l in layers:
-			workerInputs.append([str(l),pathName(e,l),symbName(e,l)])
+		workerInputs.append([str(1024),pathName(e),symbName(e)])
+	
 	argCounter = 0
 	numProcesses = int(sys.argv[1])
 	pool = []
@@ -34,3 +33,4 @@ if __name__=="__main__":
 				argCounter += 1
 				pool[num].start()
 		time.sleep(1)
+	
