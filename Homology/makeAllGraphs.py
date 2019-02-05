@@ -90,8 +90,8 @@ def getWeightedAdjacencyMatrix():
 
 def getWeightedAdjacencyMatrixNoBias():
 
-	w1 = np.load(path+'_W1.npy')
-	w2 = np.load(path+'_W2.npy')
+	w1 = np.load(path+'_W3.npy')
+	w2 = np.load(path+'_W4.npy')
 
 	dim = w1.shape[0] + w2.shape[0] + w2.shape[1]
 	m = np.zeros((dim,dim))

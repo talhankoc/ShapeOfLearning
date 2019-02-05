@@ -10,7 +10,7 @@ numVertices = -1
 inputVertices = 784
 outputVertices = 10
 path = ""
-savePath = "/Users/tkoc/Code/ShapeOfLearning/Homology/Betti2DataFloydVR/"
+savePath = "/Users/tkoc/Code/ShapeOfLearning/Homology/Test/"
 symbName = ""
 
 '''
@@ -36,14 +36,17 @@ def main(argv):
 	print('Obtaining adjacency matrix...')
 	generateRawAdjacencyMatrix()
 	matrix = computeHomology.get_adjacency_matrix(generateMatrixSavePath())
+	os.remove(generateMatrixSavePath())
 	print('Transforming weight matrix into distance matrix...')
 	matrix = makeWeightAbsoluteDistance(matrix)
-	#matrix = makeWeightDistance(matrix)
+	np.save(savePath + symbName + "/" + 'originalMatrix.npy', matrix)
 	matrix = removeZeros(matrix)
 	print('Running Floyd-Warshall...')
 	matrix = floyd_warshall_fastest(matrix)
-	print('Running VR Filtration...')
-	runVRFiltration(matrix)
+	np.save(savePath + symbName + "/" + 'shortMatrix.npy', matrix)
+	
+	#print('Running VR Filtration...')
+	#runVRFiltration(matrix)
 	return
 
 '''
@@ -53,22 +56,11 @@ def generateMatrixSavePath():
 	return savePath + symbName + "/"+"savedMatrix.npy"
 
 '''
-This function returns the location to which the shortest distance matrix will be saved
-'''
-def generateMatrixSavePath():
-	return savePath + symbName + "/"+"shortestDistanceMatrix.npy"
-
-'''
 This function returns the location to which the computed betti numbers will be saved
 '''
 def generateBettiSavePath():
 	return savePath + symbName + "/VRFiltration_BettiData.txt"
 
-'''
-This function returns the location to which the cutoff matrix should be saved
-'''
-def generateCutoffSavePath(cutoff):
-	return savePath + symbName + "/temp"+str(cutoff)
 
 '''
 This function calls makeAllGraphs, and generates the raw adjacency matrix. This is saved in the savePath location
@@ -89,18 +81,6 @@ def makeWeightAbsoluteDistance(matrix):
 				matrix.itemset((i,j),abs(1/currItem))
 	return matrix
 
-'''
-This function takes in a matrix with entries representing weights between pairs of vertices, 
-and returns a transformed matrix with each entry being 1/the weight
-'''
-def makeWeightDistance(matrix):
-	for i in range(0,matrix.shape[0]):
-		for j in range(0,matrix.shape[0]):
-			currItem = matrix.item(i,j)
-			if not currItem==0:
-				matrix.itemset((i,j),1/currItem)
-	return matrix
-
 
 def removeZeros(matrix):
 	for i in range(matrix.shape[0]):
@@ -109,14 +89,6 @@ def removeZeros(matrix):
 				matrix.itemset((i,j), inf)
 	return matrix
 
-def FloydWarshall(matrix):
-	numVertices = matrix.shape[0]
-	for k in range(0,numVertices):
-		for i in range(0,numVertices):
-			for j in range(0,numVertices):
-				if matrix.item(i,j) > matrix.item(i,k) + matrix.item(k,j): 
-					matrix.itemset((i,j),matrix.item(i,k) + matrix.item(k,j))
-	return matrix
 
 def check_and_convert_adjacency_matrix(adjacency_matrix):
     mat = asarray(adjacency_matrix)
@@ -150,7 +122,7 @@ def floyd_warshall_fastest(adjacency_matrix):
 
 
 def runVRFiltration(matrix):
-	ret = ripser(matrix, maxdim=2, distance_matrix=True)
+	ret = ripser(matrix, maxdim=1, distance_matrix=True)
 	diagrams = ret['dgms']
 	'''
 	print(ret.keys())
@@ -164,6 +136,7 @@ def runVRFiltration(matrix):
 	plot_dgms(diagrams, show=True)
 	with open(generateBettiSavePath(), "wb") as f:
 		pickle.dump(diagrams, f)
+	
 
 if __name__ == "__main__":
 	main(sys.argv[1:])

@@ -1,17 +1,19 @@
-import VRFiltrationSingleLayer as VRFiltration
+import VRFiltration as VRFiltration
 import sys, time
 from multiprocessing import Process
 
-epoch = [i for i in range(1,51)]
-layers = [8,16,24,32,40,48]
+epoch = range(1,51)
+epoch = [1,5,10]
+layers = [8,16,24,32,40,48,56,64]
+layers = [32,64]
 
-constant = "/Users/tkoc/Code/ShapeOfLearning/NNGeneration/Saved Models/Fashion - Each Epoch/"
+constant = "/Users/tkoc/Code/ShapeOfLearning/NNGeneration/Saved Models/Fashion - D5 - CNN - NODROPOUT/"
 
 def symbName(e,l):
-	return "Fashion2_"+str(e)+"_"+str(l)
+	return "Digits_"+str(e)+"_"+str(l)
 
 def pathName(e,l):
-	return constant + "NN-Fashion-"+str(l)+"__Epoch"+str(e)
+	return constant + "NN-Digit-"+str(l)+"__Epoch"+str(e)
 
 if __name__=="__main__":
 	workerInputs = []
