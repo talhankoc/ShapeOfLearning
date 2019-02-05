@@ -6,7 +6,9 @@ import makeGraphNoBias
 import numpy as np
 
 path = ""
-
+'''
+MAIN HAS BEEN MODIFIED TO RETURN THE MATRIX INSTEAD OF SAVING IT.
+'''
 def main(argv):
 	assert len(argv) >= 4, 'ERROR: Please enter required paramters. See readme.txt ...'
 	
@@ -39,7 +41,15 @@ def main(argv):
 	else:
 		print('ERROR: incorrect flag. Please specify -w for weighted and -uw for unweighted as the second parameter.')
 	#save output
-	saveBinary(matrices, saveName)
+	#saveBinary(matrices, saveName)
+
+	'''
+
+	THIS NEEDS TO BE CHANGED BACK
+
+
+	'''
+	return matrices
 
 def getUnweightedAdjacencyMatrixNoBias(cutoff):
 	w1 = np.load(path+'_W1.npy')
@@ -89,9 +99,8 @@ def getWeightedAdjacencyMatrix():
 	return m
 
 def getWeightedAdjacencyMatrixNoBias():
-
-	w1 = np.load(path+'_W3.npy')
-	w2 = np.load(path+'_W4.npy')
+	w1 = np.load(path+'_W7.npy')
+	w2 = np.load(path+'_W8.npy')
 
 	dim = w1.shape[0] + w2.shape[0] + w2.shape[1]
 	m = np.zeros((dim,dim))

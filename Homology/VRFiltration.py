@@ -6,11 +6,10 @@ from ripser import Rips
 import pickle
 
 
-numVertices = -1
-inputVertices = 784
+numVertices = 1024
 outputVertices = 10
 path = ""
-savePath = "/Users/tkoc/Code/ShapeOfLearning/Homology/Test/"
+savePath = "/Users/tkoc/Code/ShapeOfLearning/Homology/Data/CIFAR-10/"
 symbName = ""
 
 '''
@@ -34,26 +33,23 @@ def main(argv):
 			return
 
 	print('Obtaining adjacency matrix...')
-	generateRawAdjacencyMatrix()
-	matrix = computeHomology.get_adjacency_matrix(generateMatrixSavePath())
-	os.remove(generateMatrixSavePath())
+	matrix = generateRawAdjacencyMatrix()
 	print('Transforming weight matrix into distance matrix...')
 	matrix = makeWeightAbsoluteDistance(matrix)
-	np.save(savePath + symbName + "/" + 'originalMatrix.npy', matrix)
+	#np.save(savePath + symbName + "/" + 'originalMatrix.npy', matrix)
 	matrix = removeZeros(matrix)
 	print('Running Floyd-Warshall...')
 	matrix = floyd_warshall_fastest(matrix)
-	np.save(savePath + symbName + "/" + 'shortMatrix.npy', matrix)
-	
-	#print('Running VR Filtration...')
-	#runVRFiltration(matrix)
+	#np.save(savePath + symbName + "/" + 'shortMatrix.npy', matrix)
+	print('Running VR Filtration...')
+	runVRFiltration(matrix)
 	return
 
 '''
-This function returns the location to which the raw matrix (uncomputed) will be saved
+This function returns the location to which the shortest distance matrix will be saved
 '''
 def generateMatrixSavePath():
-	return savePath + symbName + "/"+"savedMatrix.npy"
+	return savePath + symbName + "/"+"shortestDistanceMatrix.npy"
 
 '''
 This function returns the location to which the computed betti numbers will be saved
@@ -66,7 +62,10 @@ def generateBettiSavePath():
 This function calls makeAllGraphs, and generates the raw adjacency matrix. This is saved in the savePath location
 '''
 def generateRawAdjacencyMatrix():
-	makeAllGraphs.main(["","0","-w","-nb",generateMatrixSavePath(),path])
+	if os.path.isfile(generateMatrixSavePath()):
+		print("Shortest distance matrix already exists...")
+		return
+	return makeAllGraphs.main(["","0","-w","-nb",generateMatrixSavePath(),path])
 
 
 '''
@@ -133,8 +132,10 @@ def runVRFiltration(matrix):
 	print(dgms[0,1].size)
 	print(type(dgms[0,2]))
 	'''
+
 	plot_dgms(diagrams, show=True)
 	with open(generateBettiSavePath(), "wb") as f:
+		print("About to save diagrams...."+generateBettiSavePath())
 		pickle.dump(diagrams, f)
 	
 
