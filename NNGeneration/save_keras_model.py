@@ -8,8 +8,5 @@ def save_model(model, location, name):
 			i += 1
 			W = np.array(weights[0])
 			b = np.array(weights[1])
-			#print("\t****************")
-			#print("\t* Saving Layer *")
-			#print("\t* "+str(W.shape)+" *")
 			np.save(location+name+"_W"+str(i),W)
 			np.save(location+name+"_b"+str(i),b)
