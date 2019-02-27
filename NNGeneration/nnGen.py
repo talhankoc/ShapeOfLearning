@@ -13,9 +13,11 @@ def genModel(layers):
 	for i in range(len(layers)):
 		layer = layers[i]
 		if i==len(layers)-1:
-			model.add(tf.keras.layers.Dense(layer, activation=tf.nn.softmax))
+			model.add(keras.layers.Dense(layer, activation=tf.nn.softmax))
+		elif i==0:
+			model.add(keras.layers.Dense(layer,input_dim = layer))
 		else:
-			model.add(tf.keras.layers.Dense(layer, activation=tf.nn.relu))
+			model.add(keras.layers.Dense(layer, activation=tf.nn.relu))
 	
 	model.compile(optimizer='adam', 
               loss='sparse_categorical_crossentropy',
@@ -45,7 +47,6 @@ def runAndSaveModel(width):
 	with open(mkSaveDir(width)+"scores.txt","w+") as f:
 		for i in range(len(testScores)):
 			f.write(f"{i+1},{trainScores[i]},{testScores[i]}\n")
-
 
 if __name__=="__main__":
 	for i in range(3,10):
