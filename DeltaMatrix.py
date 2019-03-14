@@ -22,9 +22,15 @@ def symbName(e):
 def pathName(e):
 	return constant + "MODEL_Epoch"+str(e)
 
-filepath="Saved Models/CIFAR-10-AML/model-{epoch:02d}.hdf5"
+filepath="NNGeneration/Saved Models/CIFAR-10-AML/model-{epoch:02d}.hdf5"
+"NNGeneration/Saved Models/CIFAR-10-Variation2/MODEL_Epoch9_W7.npy"
 
-loadweights.loadWeights(filepath.format(epoch=str(10)), ['dense_1'])
+W = loadweights.loadWeights(filepath.format(epoch=str(10)), ['dense_1'])
+M1 = GAM.getWeightedAdjacencyMatrixNoBias(W)
+M2 = makeAllGraphs.main(["","0","-w","-nb",None,path + fn + str(e)])
+print(np.allclose(M1, M2, atol=tol))
+def check_symmetric(a, tol=1e-8):
+	return 
 
 assert False
 epochs = 125
