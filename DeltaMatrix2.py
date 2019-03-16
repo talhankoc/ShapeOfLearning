@@ -3,8 +3,6 @@ from loadweights import loadWeights
 from generateAdjacencyMatrix import getWeightedAdjacencyMatrixNoBias
 import numpy as np
 from numpy import array, asarray, inf, zeros, minimum, diagonal, newaxis
-from ripser import ripser, plot_dgms
-from ripser import Rips
 import pickle
 
 savePath = "Homology/Data/CIFAR-10-Variation2/"
@@ -19,7 +17,6 @@ def main(argv):
 	global symbName
 	path = argv[0]
 	symbName = argv[1]
-
 	#optional parameter
 	folderPath = None
 	E = None
@@ -27,27 +24,20 @@ def main(argv):
 		folderPath = argv[2]
 	if len(argv) >= 4:
 		E = argv[3]
-	try:
-		os.makedirs(savePath + symbName)
-	except:
-		if os.path.isfile(generateBettiSavePath()):
-			print("Betti data already exists for: "+generateBettiSavePath())
-			return
-
+	print('Epoch', E)
 	print('Obtaining adjacency matrix...')
 	#weights = loadWeights(path,['dense_1'])
 	weights = loadWeightsCustom(folderPath, E)
 	matrix = getWeightedAdjacencyMatrixNoBias(weights)
 	print('Transforming weight matrix into distance matrix...')
-	matrix = makeWeightAbsoluteDistance(matrix)
-	#np.save(savePath + symbName + "/" + 'originalMatrix.npy', matrix)
-	matrix = removeZeros(matrix)
+	matrix = adjacencyToDistance(matrix)
+	M1 = matrix
 	print('Running Floyd-Warshall (Transform to Shortest Distance Matrix)...')
 	matrix = floyd_warshall_fastest(matrix)
 	#np.save(savePath + symbName + "/" + 'shortMatrix.npy', matrix)
-	print('Running VR Filtration...')
-	runVRFiltration(matrix)
+	print(calculatePercentStatic(M1,matrix))
 	return
+
 
 '''
 This function returns the location to which the shortest distance matrix will be saved
@@ -67,22 +57,15 @@ def generateBettiSavePath():
 This function takes in a matrix with entries representing weights between pairs of vertices, 
 and returns a transformed matrix with each entry being 1/the weight
 '''
-def makeWeightAbsoluteDistance(matrix):
+def adjacencyToDistance(matrix):
 	for i in range(0,matrix.shape[0]):
 		for j in range(0,matrix.shape[0]):
 			currItem = matrix.item(i,j)
-			if not currItem==0:
+			if i != j and currItem == 0:
+				matrix.itemset((i,j), inf)
+			elif currItem != 0:
 				matrix.itemset((i,j),abs(1/currItem))
 	return matrix
-
-
-def removeZeros(matrix):
-	for i in range(matrix.shape[0]):
-		for j in range(matrix.shape[1]):
-			if i != j and matrix.item(i,j) == 0:
-				matrix.itemset((i,j), inf)
-	return matrix
-
 
 def check_and_convert_adjacency_matrix(adjacency_matrix):
     mat = asarray(adjacency_matrix)
@@ -115,13 +98,26 @@ def floyd_warshall_fastest(adjacency_matrix):
     return mat
 
 def loadWeightsCustom(path, epoch):
-	print('Loading weights with custom method...')
+	#print('Loading weights with custom method...')
 	W = []
 	for e in range(7,10):
-		print('\t' + path + 'MODEL_Epoch' + str(epoch) + '_W'+ str(e) + '.npy')
+		#print('\t' + path + 'MODEL_Epoch' + str(epoch) + '_W'+ str(e) + '.npy')
 		W.append(np.load(path + 'MODEL_Epoch' + str(epoch) + '_W'+ str(e) + '.npy'))
 	return W
 
+# calculates the percent of weights in M1 (pre-Floyd-Warshall) that remain
+# the same after the Floyd-Warshall computation.
+def calculatePercentStatic(M1, M2):
+	total = 0.0
+	count = 0.0
+	for i in range(M1.shape[0]):
+		for j in range(M1.shape[1]):
+			total += 1.0
+			if M1[i,j] == inf:
+				continue
+			elif M1[i,j] == M2[i,j]:
+				count += 1
+	return float(count/total), count, total
 
 def runVRFiltration(matrix):
 	ret = ripser(matrix, maxdim=1, distance_matrix=True)

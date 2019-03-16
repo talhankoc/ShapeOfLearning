@@ -23,7 +23,7 @@ with open(path + 'scores.txt', 'r') as f:
 		dic['val_loss'].append(numbers_float[2])
 		dic['val_acc'].append(numbers_float[3])
 
-data = pd.DataFrame({'Epochs': range(1,60), 'Train_acc':dic['acc'], 'Test_acc':dic['val_acc']})
+data = pd.DataFrame({'Epochs': range(1,126), 'Train_acc':dic['acc'], 'Test_acc':dic['val_acc']})
 plt.plot( 'Epochs', 'Train_acc', data=data, marker='o', markerfacecolor='red', markersize=4, color='orange', linewidth=2)
 plt.plot( 'Epochs', 'Test_acc', data=data, marker='o', markerfacecolor='green', markersize=4, color='orange', linewidth=2)
 axes = plt.gca()

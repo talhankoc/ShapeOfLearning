@@ -14,6 +14,7 @@ from keras.layers.convolutional import MaxPooling2D
 from keras.layers.normalization import BatchNormalization
 from keras.utils import np_utils
 from keras import backend as K
+import pickle
 if K.backend()=='tensorflow':
     K.set_image_dim_ordering("th")
  
@@ -74,23 +75,24 @@ def base_model():
  
     model.add(Flatten())
     model.add(Dropout(0.2))
-    model.add(Dense(1024,activation='relu',kernel_constraint=maxnorm(3)))
+    model.add(Dense(512,activation='relu',kernel_constraint=maxnorm(3)))
+    model.add(Dropout(0.2))
+    model.add(Dense(128,activation='relu',kernel_constraint=maxnorm(3)))
     model.add(Dropout(0.2))
     model.add(Dense(num_classes, activation='softmax'))
 
     #sgd = SGD(lr = 0.1, decay=1e-6, momentum=0.9 nesterov=True)
- 
     model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
     return model
 
 def load_model_at_epoch(model, epoch):
     ret = []
-    folder = 'Saved Models/CIFAR-10/'
+    folder = 'Saved Models/CIFAR-10-Variation2/'
     fn = 'MODEL_Epoch' 
     fn += str(epoch) + '_'
     fn_end = '.npy'
-    weight_names = ['W' + str(i+1) for i in range(8)]
-    bias_names = ['b' + str(i+1) for i in range(8)]
+    weight_names = ['W' + str(i+1) for i in range(9)]
+    bias_names = ['b' + str(i+1) for i in range(9)]
     for w_num, b_num in zip(weight_names,bias_names):
         ret.append(np.load(folder + fn + w_num + fn_end))
         ret.append(np.load(folder + fn + b_num + fn_end))
@@ -98,27 +100,40 @@ def load_model_at_epoch(model, epoch):
 
 model = base_model()
 # comment out next two lines to start from fresh model
-#starting_epoch = 65
-#load_model_at_epoch(model, starting_epoch)
 model.summary()
-model_save_directory = 'Saved Models/CIFAR-10/'
-scores = []
+from collections import defaultdict
+scores = defaultdict(list)
 
+    
+for e in range(74,101):
+    print('Epoch', e)
+    load_model_at_epoch(model, e)
+    test_loss, test_acc = model.evaluate(x_test, y_test, verbose=0)
+    train_loss, train_acc = model.evaluate(x_train, y_train, verbose=0)
+    print('Test accuracy:', test_acc, '\tTest loss:', test_loss)
+    print('Train accuracy:',train_acc, '\tTrain loss:',train_loss)
+
+
+# with open('Saved Models/CIFAR-10-Variation2/scores.txt', 'wb') as f:
+#     pickle.dump(scores, f)
+
+assert False
 ###round 0 
-test_loss, test_acc = model.evaluate(x_test, y_test, verbose=1)
-train_loss, train_acc = model.evaluate(x_train, y_train, verbose=1)
-print('\nTest accuracy:',test_acc,'\n','Train accuracy:',train_acc)
-scores.append((test_acc,train_acc))
-print('Saving model to', model_save_directory)
-saver.save_model(model,model_save_directory,'MODEL_Epoch0')
-for e in range(epochs):
+# test_loss, test_acc = model.evaluate(x_test, y_test, verbose=1)
+# train_loss, train_acc = model.evaluate(x_train, y_train, verbose=1)
+# print('\nTest accuracy:',test_acc,'\n','Train accuracy:',train_acc)
+# scores.append((test_acc,train_acc))
+# print('Saving model to', model_save_directory)
+# saver.save_model(model,model_save_directory,'MODEL_Epoch0')
+for e in range(starting_epoch, epochs+1):
+    print('Epoch',e)
     res = model.fit(x_train, y_train, batch_size=batch_size, epochs=1, validation_data=(x_test,y_test),shuffle=True)
     test_acc = res.history['val_acc']
     train_acc = res.history['acc']
     print('\nTest accuracy:',test_acc,'\n','Train accuracy:',train_acc)
     scores.append((test_acc,train_acc))
     print('Saving model to', model_save_directory)
-    saver.save_model(model,model_save_directory,'MODEL_Epoch'+str(e+1))
+    saver.save_model(model,model_save_directory,'MODEL_Epoch'+str(e))
 
     
 

@@ -17,31 +17,31 @@ def main(argv):
 	cutoff = float(argv[1])
 	saveName = str(argv[4])
 	path = argv[5]
-	matrices = None
+	matrix = None
 	#flags specifying format of matrix
 	if argv[2] == '-w':
 		if argv[3] == '-nb':
 			print('Creating weighted adjacency matrix without including the biases')
-			matrices = getWeightedAdjacencyMatrixNoBias()
+			matrix = getWeightedAdjacencyMatrixNoBias()
 		elif argv[3] == '-b':
 			print('Creating weighted adjacency matrix, including the biases')
-			matrices = getWeightedAdjacencyMatrix()
+			matrix = getWeightedAdjacencyMatrix()
 		else:
 			print('ERROR: incorrect flag. Please specify -b to include biases and -nb for no biases.')
 	elif argv[2] == '-uw':
 		if argv[3] == '-nb':
 			print('Creating graphs without including the biases')
-			matrices = getUnweightedAdjacencyMatrixNoBias(cutoff)
+			matrix = getUnweightedAdjacencyMatrixNoBias(cutoff)
 		elif argv[3] == '-b':
 			print('Creating graphs including the biases')
-			matrices = getUnweightedAdjacencyMatrix(cutoff)
+			matrix = getUnweightedAdjacencyMatrix(cutoff)
 		else:
 			print('ERROR: incorrect flag. Please specify -b to include biases and -nb for no biases.')
 
 	else:
 		print('ERROR: incorrect flag. Please specify -w for weighted and -uw for unweighted as the second parameter.')
 	#save output
-	#saveBinary(matrices, saveName)
+	#saveBinary(matrix, saveName)
 
 	'''
 
@@ -49,7 +49,7 @@ def main(argv):
 
 
 	'''
-	return matrices
+	return matrix
 
 def getUnweightedAdjacencyMatrixNoBias(cutoff):
 	w1 = np.load(path+'_W1.npy')

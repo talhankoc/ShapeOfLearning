@@ -3,14 +3,6 @@ from tensorflow import keras
 import save_keras_model as saver
 from keras import backend as K
 
-
-
-
-
-''' Not used yet 
-class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat', 
-               'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
-'''
 img_rows, img_cols = 28, 28
 mnist = None
 def feedFashionDataset():
@@ -26,7 +18,7 @@ def makeAndRunModel(node_count_list, model_save_directory, e=5, divider=1, model
 	#assert mnist not None, 'Data has not been fed. Call either feedFashionDataset() or feedDigitDataset().'
 	(train_images, train_labels), (test_images, test_labels) = prepareDataSet(divider, model_type)
 	print("Nodes by Layer:", node_count_list)
-	save_name = "NN-Fashion-"+"_".join(map(str, node_count_list))
+	save_name = "NN-Digit-"+"_".join(map(str, node_count_list))
 	model = makeCNN(node_count_list) if model_type == 'cnn' else makeSimpleNN(node_count_list)
 	model.summary()
 	scores = []
@@ -74,14 +66,14 @@ def makeCNN(node_count_list):
 	# Must define the input shape in the first layer of the neural network
 	model.add(tf.keras.layers.Conv2D(filters=64, kernel_size=2, padding='same', activation='relu', input_shape=(28,28,1))) 
 	model.add(tf.keras.layers.MaxPooling2D(pool_size=2))
-	model.add(tf.keras.layers.Dropout(0.3))
+	#model.add(tf.keras.layers.Dropout(0.3))
 	model.add(tf.keras.layers.Conv2D(filters=32, kernel_size=2, padding='same', activation='relu'))
 	model.add(tf.keras.layers.MaxPooling2D(pool_size=2))
-	model.add(tf.keras.layers.Dropout(0.3))
+	#model.add(tf.keras.layers.Dropout(0.3))
 	model.add(tf.keras.layers.Flatten())
 	for number_of_units in node_count_list:
 		model.add(tf.keras.layers.Dense(number_of_units, activation='relu'))
-		model.add(tf.keras.layers.Dropout(0.5))
+		#model.add(tf.keras.layers.Dropout(0.5))
 	model.add(tf.keras.layers.Dense(10, activation='softmax'))
 	model.compile(optimizer='adam',
               loss='sparse_categorical_crossentropy',
@@ -91,10 +83,10 @@ def makeCNN(node_count_list):
 ############
 parameters = [8,16,24,32,40,48,56,64]
 parameters = parameters[::-1]
-model_save_directory = 'Saved Models/Fashion - Each Epoch/'
+model_save_directory = 'Saved Models/Digits - Each Epoch - D10 - CNN - NO_DROPOUT/'
 feedFashionDataset()
 for p in parameters:
-	scores_list = makeAndRunModel([p],model_save_directory,e=50,divider=10)
+	scores_list = makeAndRunModel([p],model_save_directory,e=50,divider=5, model_type='cnn')
 	f = open(model_save_directory+'HiddenLayerNodeCount'+str(p)+"_Scores.txt","w+")
 	count = 1
 	f.write('Epoch \tTest Acc. \tTrain Acc.')

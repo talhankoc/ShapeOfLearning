@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib
 matplotlib.use('agg',warn=False, force=True)
 import matplotlib.pyplot as plt
-import JoeMethod
 
 '''
 Generates adjacency matrices for different cutoff values and also computes betti numbers

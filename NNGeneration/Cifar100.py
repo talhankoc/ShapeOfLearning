@@ -11,6 +11,7 @@ import os
 import pickle
 import numpy as np
 import h5py
+from pathlib import Path
 
 num_classes = 100
 save_dir = root = "/Users/tkoc/Code/ShapeOfLearning/NNGeneration/Saved Models/CIFAR-100/"
@@ -33,31 +34,29 @@ x_test /= 255.
 
 model = Sequential()
 
-model.add(Conv2D(128, (3, 3), padding='same',
-                 input_shape=x_train.shape[1:]))
+model.add(Conv2D(64, (3, 3), padding='same',
+								 input_shape=x_train.shape[1:]))
+model.add(Activation('elu'))
+model.add(Conv2D(64, (3, 3)))
+model.add(Activation('elu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.25))
+
+model.add(Conv2D(128, (3, 3), padding='same'))
 model.add(Activation('elu'))
 model.add(Conv2D(128, (3, 3)))
 model.add(Activation('elu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
-#model.add(Dropout(0.25))
-
-model.add(Conv2D(256, (3, 3), padding='same'))
-model.add(Activation('elu'))
-model.add(Conv2D(256, (3, 3)))
-model.add(Activation('elu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
 
-model.add(Conv2D(512, (3, 3), padding='same'))
+model.add(Conv2D(128, (3, 3), padding='same'))
 model.add(Activation('elu'))
-model.add(Conv2D(512, (3, 3)))
+model.add(Conv2D(128, (3, 3)))
 model.add(Activation('elu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
-
 
 model.add(Flatten())
-model.add(Dense(1024))
+model.add(Dense(512))
 model.add(Activation('elu'))
 model.add(Dropout(0.5))
 model.add(Dense(num_classes))
@@ -68,79 +67,106 @@ opt = keras.optimizers.rmsprop(lr=0.0001, decay=1e-6)
 
 # Let's train the model using RMSprop
 model.compile(loss='categorical_crossentropy',
-              optimizer=opt,
-              metrics=['accuracy'])
+							optimizer=opt,
+							metrics=['accuracy'])
+model.summary()
 
 ##########################################
-def saveModel(model,fn):
-  model_save_directory = 'Saved Models/CIFAR-100/'
-  test_loss, test_acc = model.evaluate(x_test, y_test, verbose=1)
-  train_loss, train_acc = model.evaluate(x_train, y_train, verbose=1)
-  print('\nTest accuracy:',test_acc,'\n','Train accuracy:',train_acc)
-  print('Saving model to', model_save_directory)
-  saver.save_model(model,model_save_directory,fn)
+def saveModel(model, history, fn):
+	model_save_directory = 'Saved Models/CIFAR-100/'
+	saver.save_model(model,model_save_directory,fn)
+	fn = model_save_directory + 'scores.txt'
+	my_file = Path(fn)
+	try:
+		my_abs_path = my_file.resolve(strict=True)
+	except FileNotFoundError:
+		createScoreFile(fn)
+	with open(fn, 'a') as f:
+		f.write(f"{history['acc'][0]}\t{history['loss'][0]}\t{history['val_acc'][0]}\t{history['val_loss'][0]}\n")
+
+def createScoreFile(fn):
+	header =  'acc \t loss \t val_acc \t val_loss'
+	f = open(fn, 'w+')
+	f.write(header)
+	f.close()
+
+def saveInitModel(model):
+	#TODO The attribute model.metrics_names will give you the display labels for the scalar outputs.
+	va, vl = model.evaluate(x_test, y_test, verbose=1)
+	a, l = model.evaluate(x_train, y_train, verbose=1)
+	history = {'acc': a, 'val_acc': va, 'loss':l, 'val_loss':vl }
+	fn = 'MODEL_EpochInit'
+	saveModel(model, history, fn)
+
+
 
 def load_model_at_epoch(model, epoch):
-    ret = []
-    folder = 'Saved Models/CIFAR-100/'
-    fn = 'MODEL_Epoch' 
-    fn += str(epoch) + '_'
-    fn_end = '.npy'
-    weight_names = ['W' + str(i+1) for i in range(8)]
-    bias_names = ['b' + str(i+1) for i in range(8)]
-    for w_num, b_num in zip(weight_names,bias_names):
-        ret.append(np.load(folder + fn + w_num + fn_end))
-        ret.append(np.load(folder + fn + b_num + fn_end))
-    model.set_weights(ret)
+	ret = []
+	folder = 'Saved Models/CIFAR-100/'
+	fn = 'MODEL_Epoch' 
+	fn += str(epoch) + '_'
+	fn_end = '.npy'
+	weight_names = ['W' + str(i+1) for i in range(8)]
+	bias_names = ['b' + str(i+1) for i in range(8)]
+	for w_num, b_num in zip(weight_names,bias_names):
+		ret.append(np.load(folder + fn + w_num + fn_end))
+		ret.append(np.load(folder + fn + b_num + fn_end))
+	model.set_weights(ret)
 
-epochs = 200
+epochs = 100
 data_augmentation = True
 num_predictions = 20
 batch_size = 200
 validations = []
 
-saveModel(model, 'MODEL_EpochInit')
-load_model_at_epoch(model, 1)
-for i in range(2,epochs):
-    if not data_augmentation:
-        print('Not using data augmentation.')
-        model.fit(x_train, y_train,
-                  batch_size=batch_size,
-                  epochs=1,
-                  validation_data=(x_test, y_test),
-                  shuffle=True)
-    else:
-        print('Using real-time data augmentation.')
-        # This will do preprocessing and realtime data augmentation:
-        datagen = ImageDataGenerator(
-            featurewise_center=False,  # set input mean to 0 over the dataset
-            samplewise_center=False,  # set each sample mean to 0
-            featurewise_std_normalization=False,  # divide inputs by std of the dataset
-            samplewise_std_normalization=False,  # divide each input by its std
-            zca_whitening=False,  # apply ZCA whitening
-            rotation_range=0,  # randomly rotate images in the range (degrees, 0 to 180)
-            width_shift_range=0.1,  # randomly shift images horizontally (fraction of total width)
-            height_shift_range=0.1,  # randomly shift images vertically (fraction of total height)
-            horizontal_flip=True,  # randomly flip images
-            vertical_flip=False)  # randomly flip images
 
-        # Compute quantities required for feature-wise normalization
-        # (std, mean, and principal components if ZCA whitening is applied).
-        datagen.fit(x_train)
+#saveInitModel(model)
+load_model_at_epoch(model, 54)
+model.summary()
 
-        # Fit the model on the batches generated by datagen.flow().
-        history = model.fit_generator(datagen.flow(x_train, y_train,
-                                         batch_size=batch_size),
-                            steps_per_epoch=x_train.shape[0] // batch_size,
-                            epochs=1)
-        saveModel(model, 'MODEL_Epoch' + str(i))
-                            #,
-                            #validation_data=(x_test, y_test))
-        # validations.append(model.evaluate_generator(datagen.flow(x_test, y_test,
-        #                                   batch_size=batch_size),
-        #                                   steps=x_test.shape[0] // batch_size))
-        
-        # TODO: save model
+for i in range(55,epochs+1):
+	print(f'Epoch {i}')
+	if not data_augmentation:
+		print('Not using data augmentation.')
+		model.fit(x_train, y_train,
+							batch_size=batch_size,
+							epochs=1,
+							validation_data=(x_test, y_test),
+							shuffle=True)
+	else:
+		print('Using real-time data augmentation.')
+		# This will do preprocessing and realtime data augmentation:
+		datagen = ImageDataGenerator(
+				featurewise_center=False,  # set input mean to 0 over the dataset
+				samplewise_center=False,  # set each sample mean to 0
+				featurewise_std_normalization=False,  # divide inputs by std of the dataset
+				samplewise_std_normalization=False,  # divide each input by its std
+				zca_whitening=False,  # apply ZCA whitening
+				rotation_range=0,  # randomly rotate images in the range (degrees, 0 to 180)
+				width_shift_range=0.1,  # randomly shift images horizontally (fraction of total width)
+				height_shift_range=0.1,  # randomly shift images vertically (fraction of total height)
+				horizontal_flip=True,  # randomly flip images
+				vertical_flip=False)  # randomly flip images
+
+		# Compute quantities required for feature-wise normalization
+		# (std, mean, and principal components if ZCA whitening is applied).
+		datagen.fit(x_train)
+
+		# Fit the model on the batches generated by datagen.flow().
+		history = model.fit_generator(datagen.flow(x_train, y_train,
+												batch_size=batch_size),
+												validation_data=(x_test, y_test),
+												steps_per_epoch=x_train.shape[0] // batch_size,
+												epochs=1)
+
+		saveModel(model, history.history, 'MODEL_Epoch' + str(i))
+												#,
+												#validation_data=(x_test, y_test))
+		# validations.append(model.evaluate_generator(datagen.flow(x_test, y_test,
+		#                                   batch_size=batch_size),
+		#                                   steps=x_test.shape[0] // batch_size))
+		
+		# TODO: save model
 
 #pickle.dump(validations, open("loss_validation.p",'wb'))
 
@@ -153,27 +179,27 @@ label_list_path = 'datasets/cifar-100-python/meta'
 keras_dir = os.path.expanduser(os.path.join('~', '.keras'))
 datadir_base = os.path.expanduser(keras_dir)
 if not os.access(datadir_base, os.W_OK):
-    datadir_base = os.path.join('/tmp', '.keras')
+		datadir_base = os.path.join('/tmp', '.keras')
 label_list_path = os.path.join(datadir_base, label_list_path)
 
 with open(label_list_path, mode='rb') as f:
-    labels = pickle.load(f)
+		labels = pickle.load(f)
 
 # Evaluate model with test data set and share sample prediction results
 evaluation = model.evaluate_generator(datagen.flow(x_test, y_test,
-                                      batch_size=batch_size),
-                                      steps=x_test.shape[0] // batch_size)
+																			batch_size=batch_size),
+																			steps=x_test.shape[0] // batch_size)
 
 print('Model Accuracy = %.2f' % (evaluation[1]))
 
 predict_gen = model.predict_generator(datagen.flow(x_test, y_test,
-                                      batch_size=batch_size),
-                                      steps=x_test.shape[0] // batch_size)
+																			batch_size=batch_size),
+																			steps=x_test.shape[0] // batch_size)
 
 for predict_index, predicted_y in enumerate(predict_gen):
-    actual_label = labels['fine_label_names'][np.argmax(y_test[predict_index])]
-    predicted_label = labels['fine_label_names'][np.argmax(predicted_y)]
-    print('Actual Label = %s vs. Predicted Label = %s' % (actual_label,
-                                                          predicted_label))
-    if predict_index == num_predictions:
-        break
+		actual_label = labels['fine_label_names'][np.argmax(y_test[predict_index])]
+		predicted_label = labels['fine_label_names'][np.argmax(predicted_y)]
+		print('Actual Label = %s vs. Predicted Label = %s' % (actual_label,
+																													predicted_label))
+		if predict_index == num_predictions:
+				break

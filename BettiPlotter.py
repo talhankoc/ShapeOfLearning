@@ -1,9 +1,6 @@
-import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-from numpy import inf
-import os
 
 def plot_dgms(
     diagrams,
@@ -12,7 +9,7 @@ def plot_dgms(
     xy_range=None,
     labels=None,
     colormap="default",
-    size=20,	
+    size=20,    
     ax_color=np.array([0.0, 0.0, 0.0]),
     diagonal=True,
     lifetime=False,
@@ -177,72 +174,4 @@ def plot_dgms(
     if save_path:
         plt.savefig(save_path, dpi=400)
     plt.close()
-
-
-#-----------------------------------------#
-path = '/Users/tkoc/Code/ShapeOfLearning/Homology/Fashion - D5 - CNN - NODROPOUT/'
-file_name = 'VRFiltration_BettiData.txt'
-folder_prefix = 'Digits_'
-layer_sizes = [8,16,24,32,40,48,56,64]
-epochs = 50
-
-#Fashion - NN - D5
-#layer_xy_values = [22.967964, 17.71789, 14.93423, 12.691457, 12.71138, 13.162088, 12.603651, 12.159047]
-
-#Digits - NN - D5
-#layer_xy_values = [28.490145, 18.352308, 14.804653, 13.737841, 13.4173155, 13.0376625, 13.085586, 12.694086]
-
-#DigitsFull
-#layer_xy_values = [28.735216, 17.180737, 16.170462, 14.187271, 13.152125, 13.048143]
-
-#FashionInputLayer
-#layer_xy_values = [29.518257, 19.735643, 19.655315, 20.1538, 19.606615, 19.76956]
-
-# FashionOutputLayer
-#layer_xy_values = [4.516148, 5.142353, 5.3599305, 5.422422, 6.338068, 6.795538]
-
-#FashionFull
-#layer_xy_values = [32.5, 20.5, 16.5, 15.9, 14.3, 14.5]
-
-#Fashion - D5 - CNN - Dropout
-#layer_xy_values = [56.250675, 29.88856, 19.876518, 20.3581, 18.748922, 17.4363, 18.114687, 16.255894]
-
-#Fashion - D5 - CNN - NODROPOUT
-layer_xy_values = [20.0]
-
-for layer_size, x_range in zip(layer_sizes,layer_xy_values):
-	for epoch in range(1, epochs+1):
-		folder_path = path + folder_prefix + str(epoch) + '_' + str(layer_size) + '/'
-		data_path = folder_path + file_name
-		with open(data_path, 'rb') as f:
-			diagrams = pickle.load(f)
-
-			#calculate and save some basic facts about betti persistance
-			h0_total = len(diagrams[0])
-			h1_total = len(diagrams[1])
-			#h2_total = len(diagrams[2])
-
-			avg_h0_life = sum([ y-x for x,y in diagrams[0] if y != inf ])/h0_total
-			avg_h1_life = sum([ y-x for x,y in diagrams[1] if y != inf ])/h1_total
-			# if h2_total != 0:
-			# 	avg_h2_life = sum([ y-x for x,y in diagrams[2] if y != inf ])/h2_total
-			# else:
-			# 	avg_h2_life = 0
-
-			with open(folder_path + 'analysis.txt', 'wb') as f2:
-				pickle.dump([h0_total,h1_total, avg_h0_life,avg_h1_life], f2)
-
-			
-			print('Layer',layer_size, '\tepoch', epoch)
-			plot_dgms(diagrams, 
-				size=12,
-				title='Layer Size='+str(layer_size)+', Epoch='+str(epoch),
-				save_path=folder_path+'birth_death.png', 
-				xy_range=[-1,x_range,-1,x_range])
-			plot_dgms(diagrams, 
-				size=12, 
-				title='Layer Size='+str(layer_size)+', Epoch='+str(epoch),
-				save_path=folder_path+'lifetime.png', 
-				xy_range=[-1,x_range,-1,x_range], lifetime=True,)
-
-	
+    

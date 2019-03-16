@@ -1,7 +1,7 @@
 import numpy as np
 
 def getWeightedAdjacencyMatrixNoBias(W):
-	print(f'Combining {len(W)} layers to form adjacency matrix\n...')
+	#print(f'\tcombining {len(W)} layers to form adjacency matrix...')
 	row_dimensions = [w.shape[0] for w in W]
 	dim = sum(row_dimensions) + W[-1].shape[1]
 	M = np.zeros((dim,dim))
