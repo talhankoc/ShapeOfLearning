@@ -44,6 +44,9 @@ def trainNetwork():
 '''
 Runs the full pipeline for a given epoch. This function can be put into
 a pool.
+
+(Only runs the pipeline for a single epoch intentionally, so that it can 
+be run in parallel by a pool.)
 '''
 def runPipeline(epoch):
 	weights = wl.loadWeights(nnSavePath(epoch),config["layerNames"])
