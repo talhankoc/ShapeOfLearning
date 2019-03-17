@@ -6,6 +6,8 @@ import filtration
 
 import os
 
+from multiprocessing import Pool 
+
 config = {
 
 	"root" : "/Users/kunaalsharma/Desktop/MATH 494/MATH 493/ShapeOfLearning/",
@@ -22,21 +24,21 @@ config = {
 
 }
 
+'''
+Runs all betti generation in parallel using the runPipeline function.
+'''
 def bulkProcess():
-	'''
-	Takes a bunch of arguments
-
-	Runs a pool using one of the two others
-		- train a network
-		- run the pipeline
-	'''
-	pass
+	pool = Pool(processes = config["numProcesses"])
+	pool.map(runPipeline,config["epochs"])
 
 '''
-Trains a network and saves the data.
+Trains any network. The network should take the nnSavePath function as an 
+argument, and use that to generate the save location for each epoch. Nothing
+else needs to change.
 '''
 def trainNetwork():
-	#network = ??
+	import sampleNetwork
+	sampleNetwork.makeAndRun(nnSavePath)
 
 
 '''
@@ -50,11 +52,18 @@ def runPipeline(epoch):
 	filtration.VR(vrSavePath(epoch),processedMatrix)
 
 	
-
+'''
+Analysis is anything that runs using all betti information (for example, 
+gradient.py or delta.py). Any analysis should have a function "runAnalysis"
+that accepts a list of paths to vrData and the analysisSavePath.
+'''
 def runAnalysis():
-	'''
-	Run cumulative analysis
-	'''
+	paths = []
+	for epoch in config["epochs"]:
+		paths.append(vrSavePath(epoch))
+
+	import sampleAnalysis
+	sampleAnalysis.runAnalysis(paths,analysisSavePath())
 
 '''
 Makes a directory for nnData if there isn't one.
@@ -84,5 +93,18 @@ def vrSavePath(epoch):
 		path = path + "_" + str(weight)
 	return path
 
+'''
+Makes a directory for analysisSave if there isn't one.
+Returns the path to the specified symName path.
+'''
+def analysisSavePath():
+	path = config["root"] + "analysis/" + config["symname"] + "/"
+	if not os.path.isdir(path):
+		os.mkdir(path)
+	return path 
+
+'''
+Change this depending upon what you want to do
+'''
 if __name__ == "__main__":
-	pass
+	bulkProcess()
