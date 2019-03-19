@@ -1,4 +1,3 @@
-
 import weightLoader as wl
 import generateAdjacencyMatrix as adj
 import preprocessing as pp
@@ -19,7 +18,7 @@ config = {
 	"epochs" : [i for i in range(50)],
 
 	"layerNames" : ["cuck1","cuck2"],
-
+	
 	"numProcesses" : 3
 
 }
