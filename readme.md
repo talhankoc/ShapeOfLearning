@@ -2,7 +2,7 @@
 * Tensorflow
 * Numpy
 
-#Usage
+# Usage
 The main file to run is `master.py`. This file orchestrates the entire data generation/analysis pipeline. The important parameter for this file is the `config` dictionary, which contains the following keys:
 
 * root : The root path at which the master file is located.
