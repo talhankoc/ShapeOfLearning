@@ -1,7 +1,5 @@
 import numpy as np
 import h5py
-
-
 '''
 Arguments:
 	path : base path to the file 
@@ -16,7 +14,6 @@ def loadWeightsCustom(path):
 		print('\t' + path +str(e) + '.npy')
 		W.append(np.load(path + str(e) + '.npy'))
 	return W
-
 
 '''
 Arguments: 
@@ -39,3 +36,20 @@ def loadWeights(fn, layer_names):
 		W.append(w)
 	f.close()
 	return W
+
+'''
+Loads weights saved by keras_model_saver. The provided path 
+is for a single epoch. Stupid implementation but oh well *shrugs*
+'''
+def simpleLoader(path):
+	W = []
+	for i in range(1,1000):
+		try:
+			currData = np.load(path + f"_W{i}.npy")
+			W.append(currData)
+		except:
+			break
+	return W
+
+
+

@@ -4,24 +4,34 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import pandas as pd
 
-path = 'Homology/Data/CIFAR-10-Variation2/'
-file_name = 'analysis.txt'
-folder_prefix = 'model-'
-epochs = range(101)
+from numpy import inf
+
+path = 'bettiData/DigitsSimple/'
+epochs = [i for i in range(1,31)]
+
+def analysis(data):
+    lifetime = np.array([ [x,y-x] for x,y in data if y != inf ])
+    mean, std = np.mean(lifetime[:,1]), np.std(lifetime[:,1])
+    above_standard_deviation_points = np.array([point for point in lifetime if point[1] > mean + std ])
+    return len(lifetime), mean
 
 def generate_dataframes():#layer_size
 	h0_totals, h1_totals, h2_totals = [], [], []
 	avg_h0_lifes, avg_h1_lifes, avg_h2_lifes = [],[],[]
 	lists = [h0_totals, h1_totals,avg_h0_lifes, avg_h1_lifes]
 	for epoch in epochs:
-		folder_path = path + folder_prefix + str(epoch) + '/'
-		fn = folder_path + file_name
+		fn = path + f"{epoch}_8"
+		print(fn)
 		with open(fn, 'rb') as f:
-			# values = h0_total, h1_total, h2_total, avg_h0_life, avg_h1_life, avg_h2_lifes
+			# values = h0_total, h1_total,avg_h0_life, avg_h1_life
 			values = pickle.load(f)
+			h0data = analysis(values[0])
+			h1data = analysis(values[1])
+			values = [h0data[0],h1data[0], h0data[1],h1data[1]]
 			#print(values, '\n')
 			for val, lst in zip(values, lists):
 				lst.append(val)
+
 	total_count=pd.DataFrame({'Epochs': epochs,  'Betti 0':h0_totals,'Betti 1':h1_totals})
 	average_life=pd.DataFrame({'Epochs': epochs,  'Betti 0':avg_h0_lifes,'Betti 1':avg_h1_lifes})
 	return total_count, average_life
