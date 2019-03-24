@@ -30,9 +30,13 @@ a pool.
 be run in parallel by a pool.)
 '''
 def runPipeline(epoch):
-	weights = wl.simpleLoader(nnSavePath(epoch))
+	print('Loading Weights...')
+	weights = wl.customLoader(nnSavePath(epoch),[7,8])
+	print('Generating Adjacency Matrix...')
 	adjacencyMatrix = adj.getWeightedAdjacencyMatrixNoBias(weights)
+	print('Preprocessing...')
 	processedMatrix = pp.standardVR(adjacencyMatrix)
+	print('VRFiltration...')
 	filtration.VR(vrSavePath(epoch),processedMatrix)
 	print(f"Finished epoch: {epoch}")
 
@@ -56,7 +60,7 @@ specified.
 Returns the path to the specific epoch
 '''
 def nnSavePath(epoch, fstring = False, hdf5 = False, mkdir=True):
-	path = config["root"] + "data/"+config["symname"] +"/"
+	path = config["root"] + "data/" + config["symname"] + "/" + config['nnSaveFnPre']
 	if not os.path.isdir(path) and mkdir:
 		os.mkdir(path)
 
@@ -114,44 +118,31 @@ def accSavePath(mkdir=True):
 
 config = {
 
-	"root" : "/Users/kunaalsharma/Desktop/MATH 494/MATH 493/ShapeOfLearning/",
+	"root" : f'{os.getcwd()}/',
 
-	"symname" : "DigitsSimple",
+	"symname" : "CIFAR-100",
 
-	"layerWidths" : [8,8],
+	"layerWidths" : [],
 
-	"epochs" : [i for i in range(1,51)],
+	"epochs" : [i for i in range(118,201)],
 
-	"layerNames" : ["Dense",],
+	#"layerNames" : ["Dense",],
 	
-	"numProcesses" : 3,
+	"numProcesses" : 1,
 
 	"nnSaveFn" : nnSavePath,
 
-	"accSaveFn" : accSavePath
+	"accSaveFn" : accSavePath,
+
+	"nnSaveFnPre":'MODEL_Epoch'
 
 }
 '''
 Change this depending upon what you want to do
 '''
 if __name__ == "__main__":
-	trainNetwork()
-	bulkProcess()
-	config["layerWidths"] = [16,16]
-	trainNetwork()
-	bulkProcess()
-	config["layerWidths"] = [32,32]
-	trainNetwork()
-	bulkProcess()
-	config["layerWidths"] = [8,8,8]
-	trainNetwork()
-	bulkProcess()
-	config["layerWidths"] = [16,16,16]
-	trainNetwork()
-	bulkProcess()
-	config["layerWidths"] = [32,32,32]
-	trainNetwork()
-	bulkProcess()
+	for epoch in config["epochs"]:
+		runPipeline(epoch)
 
 
 

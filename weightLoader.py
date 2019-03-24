@@ -7,14 +7,14 @@ Arguments:
 Output:
 	W : list of weights 
 '''
-def loadWeightsCustom(path):
-	print('Loading weights with custom method...')
+def customLoader(path, layer_numbers):
+	print('Loading weights with custom method.')
 	W = []
-	for e in range(7,10):
-		print('\t' + path +str(e) + '.npy')
-		W.append(np.load(path + str(e) + '.npy'))
+	for l in layer_numbers:
+		print(f'\t{path}_W{l}.npy')
+		W.append(np.load(f'{path}_W{l}.npy'))
 	return W
-
+	
 '''
 Arguments: 
 	fn : path to h5py file
