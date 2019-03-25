@@ -3,21 +3,23 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import pandas as pd
-
 from numpy import inf
 
-path = 'bettiData/DigitsSimple/'
-epochs = [i for i in range(1,31)]
 
-def analysis(data):
-    lifetime = np.array([ [x,y-x] for x,y in data if y != inf ])
-    mean, std = np.mean(lifetime[:,1]), np.std(lifetime[:,1])
-    above_standard_deviation_points = np.array([point for point in lifetime if point[1] > mean + std ])
-    return len(lifetime), mean
 
-def generate_dataframes():#layer_size
-	h0_totals, h1_totals, h2_totals = [], [], []
-	avg_h0_lifes, avg_h1_lifes, avg_h2_lifes = [],[],[]
+def run(path):
+	#TODO
+
+
+# def analysis(data):
+#     lifetime = np.array([ [x,y-x] for x,y in data if y != inf ])
+#     mean, std = np.mean(lifetime[:,1]), np.std(lifetime[:,1])
+#     above_standard_deviation_points = np.array([point for point in lifetime if point[1] > mean + std ])
+#     return len(lifetime), mean
+
+def generate_dataframes(epochs):#layer_size
+	h0_totals, h1_totals = [], []
+	avg_h0_lifes, avg_h1_lifes = [], []
 	lists = [h0_totals, h1_totals,avg_h0_lifes, avg_h1_lifes]
 	for epoch in epochs:
 		fn = path + f"{epoch}_8"
@@ -39,7 +41,9 @@ def generate_dataframes():#layer_size
 
 #for layer_size in layer_sizes:
 # #############	
-total_count,average_life = generate_dataframes()
+path = 'bettiData/DigitsSimple/'
+epochs = [i for i in range(1,31)]
+total_count,average_life = generate_dataframes(epochs)
 
 plt.plot( 'Epochs', 'Betti 1', data=total_count, marker='o', markerfacecolor='red', markersize=4, color='magenta', linewidth=2)
 plt.legend()

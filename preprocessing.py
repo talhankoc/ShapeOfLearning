@@ -61,17 +61,10 @@ Output
 '''
 def floydWarshallFastest(adjacency_matrix):
     (mat, n) = check_and_convert_adjacency_matrix(adjacency_matrix)
-<<<<<<< HEAD
     printProgressBar(0, n, prefix = 'FloyWarshall:', suffix = 'Complete', length = 50)
     for k in range(n):
         mat = minimum(mat, mat[newaxis,k,:] + mat[:,k,newaxis]) 
         printProgressBar(k+1, n, prefix = 'FloyWarshall:', suffix = 'Complete', length = 50)
-=======
-
-    for k in range(n):
-        mat = minimum(mat, mat[newaxis,k,:] + mat[:,k,newaxis]) 
-
->>>>>>> origin/master
     return mat
 
 '''

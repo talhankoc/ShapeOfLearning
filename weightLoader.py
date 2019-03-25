@@ -43,7 +43,7 @@ is for a single epoch. Stupid implementation but oh well *shrugs*
 '''
 def simpleLoader(path):
 	W = []
-	for i in range(1,1000):
+	for i in range(1,15):
 		try:
 			currData = np.load(path + f"_W{i}.npy")
 			W.append(currData)

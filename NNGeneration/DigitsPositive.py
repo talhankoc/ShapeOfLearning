@@ -28,17 +28,15 @@ import tensorflow as tf
 import multiprocessing as mp
  
 # Loading the CIFAR-10 datasets
-from keras.datasets import mnist
+from keras.datasets import fashion_mnist
 
 
-save_folder = 'data/Digits-PositiveWeights/'
-
-
+save_folder = 'data/Fashion-PositiveWeights-Layers300,150/'
 batch_size = 32 
 num_classes = 10 
 epochs = 100 
 
-(x_train, y_train), (x_test, y_test) = mnist.load_data()
+(x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
 
 y_train = np_utils.to_categorical(y_train, num_classes)
 y_test = np_utils.to_categorical(y_test, num_classes)
@@ -50,10 +48,16 @@ x_test /= 255
 def base_model():
     model = Sequential()
     model.add(Flatten(input_shape=(28, 28)))
-    model.add(Dropout(0.2))
-    model.add(Dense(64,activation='relu',\
+    #model.add(Dropout(0.2))
+
+    model.add(Dense(150,activation='relu',
         kernel_constraint=constraints.NonNeg()))
-    model.add(Dropout(0.2))
+    model.add(Dropout(0.1))
+
+    model.add(Dense(50,activation='relu',
+        kernel_constraint=constraints.NonNeg()))
+    model.add(Dropout(0.1))
+
     model.add(Dense(num_classes, activation='softmax',\
         kernel_constraint=constraints.NonNeg()))
 
@@ -103,8 +107,6 @@ def saveInitModel(model):
     
 model = base_model()
 model.summary()
-saveModel(model, {'acc': 1, 'val_acc': 2, 'loss':3, 'val_loss':4 },'test_save')
-saveInitModel(model)
 for e in range(1, epochs+1):
     print('Epoch',e)
     history = model.fit(x_train, y_train, batch_size=batch_size, epochs=1, validation_data=(x_test,y_test),shuffle=True) 

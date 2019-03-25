@@ -31,7 +31,7 @@ be run in parallel by a pool.)
 '''
 def runPipeline(epoch):
 	print('Loading Weights...')
-	weights = wl.customLoader(nnSavePath(epoch),[7,8])
+	weights = wl.simpleLoader(nnSavePath(epoch))
 	print('Generating Adjacency Matrix...')
 	adjacencyMatrix = adj.getWeightedAdjacencyMatrixNoBias(weights)
 	print('Preprocessing...')
@@ -49,10 +49,10 @@ that accepts a list of paths to vrData and the analysisSavePath.
 def runAnalysis():
 	paths = []
 	for epoch in config["epochs"]:
-		paths.append(vrSavePath(epoch))
+		paths.append(vrSavePath(epoch, mkdir=False))
 
-	import sampleAnalysis
-	sampleAnalysis.runAnalysis(paths,analysisSavePath())
+	import sampleAnalysis #vranalysis
+	vranalysis.runAnalysisAndVisualization(paths,analysisSavePath())
 
 '''
 Makes a directory for nnData if there isn't one and mkdir is
@@ -111,20 +111,24 @@ def accSavePath(mkdir=True):
 	path =config["root"] + "data/" + config["symname"] + "/"
 	if not os.path.isdir(path) and mkdir:
 		os.mkdir(path)
-	path = path + "acc"
+	path = path + "scores"
 	for weight in config["layerWidths"]:
 		path = path + "_" + str(weight)
 	return path + ".txt"
+
+def plotModelMetrics():
+	import scorePlot
+	scorePlot.run(accSavePath(mkdir=False),config['epochs'],analysisSavePath(), close_up_range=2)
 
 config = {
 
 	"root" : f'{os.getcwd()}/',
 
-	"symname" : "CIFAR-100",
+	"symname" : "Fashion-PositiveWeights-Layers150,50-Dropout10",
 
 	"layerWidths" : [],
 
-	"epochs" : [i for i in range(118,201)],
+	"epochs" : [i for i in range(1,101)],
 
 	#"layerNames" : ["Dense",],
 	
@@ -141,8 +145,11 @@ config = {
 Change this depending upon what you want to do
 '''
 if __name__ == "__main__":
-	for epoch in config["epochs"]:
-		runPipeline(epoch)
+	# for epoch in config["epochs"]:
+	# 	runPipeline(epoch)
+		#TODO
+	#runAnalysis()
+	plotModelMetrics()
 
 
 

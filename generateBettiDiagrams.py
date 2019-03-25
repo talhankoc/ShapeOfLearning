@@ -3,16 +3,41 @@ from numpy import inf
 from BettiPlotter import plot_dgms
 
 #-----------------------------------------#
-path = 'Homology/Data/CIFAR-10-Variation2/'
-file_name = 'VRFiltration_BettiData.txt'
+#path = 'Homology/Data/CIFAR-10-Variation2/'
+#file_name = 'VRFiltration_BettiData.txt'
 folder_prefix = 'model-'
 epochs = range(101)
 
+#load paths
+#
 def analysis(data):
     lifetime = np.array([ [x,y-x] for x,y in data if y != inf ])
     mean, std = np.mean(lifetime[:,1]), np.std(lifetime[:,1])
     above_standard_deviation_points = np.array([point for point in lifetime if point[1] > mean + std ])
     return lifetime, mean, std, above_standard_deviation_points
+
+def generateBettiDiagram(load_path, root_save_path, analysis_fn, x_range=None, plot_lifetime_too=False):
+    with open(load_path, 'rb') as f:
+        diagrams = pickle.load(f)
+    
+    plot_dgms(diagrams, 
+            size=12,
+            title=f'CIFAR-100 | Epoch {epoch}',
+            save_path=root_save_path+'birth_death.png',
+            xy_range=[-1,x_range,-1,x_range] if x_range else None
+            )
+    
+    if plot_lifetime_too:
+        plot_dgms(diagrams, 
+            size=12, 
+            title=f'CIFAR-100 | Epoch {epoch}',
+            save_path=root_save_path+'lifetime.png', 
+            xy_range=[-1,x_range,-1,x_range] if x_range else None, 
+            lifetime=True
+            )
+
+    with open(folder_path + 'analysis.txt', 'wb') as f2:
+
 
 for epoch in epochs:
     print('Epoch', epoch)
