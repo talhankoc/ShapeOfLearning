@@ -28,17 +28,17 @@ import tensorflow as tf
 import multiprocessing as mp
  
 # Loading the CIFAR-10 datasets
-from keras.datasets import cifar10
+from keras.datasets import mnist
 
 
-save_folder = 'data/CIFAR-10-CNN-PositiveWeights/'
+save_folder = 'data/Digits-PositiveWeights/'
 
 
 batch_size = 32 
 num_classes = 10 
 epochs = 100 
 
-(x_train, y_train), (x_test, y_test) = cifar10.load_data() 
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
 
 y_train = np_utils.to_categorical(y_train, num_classes)
 y_test = np_utils.to_categorical(y_test, num_classes)
@@ -49,28 +49,9 @@ x_test /= 255
 
 def base_model():
     model = Sequential()
- 
-    model.add(Conv2D(32, (3, 3), padding='same', activation='relu', input_shape=x_train.shape[1:]))
+    model.add(Flatten(input_shape=(28, 28)))
     model.add(Dropout(0.2))
- 
-    model.add(Conv2D(32,(3,3),padding='same', activation='relu'))
-    model.add(MaxPooling2D(pool_size=(2,2)))
- 
-    model.add(Conv2D(64,(3,3),padding='same',activation='relu'))
-    model.add(Dropout(0.2))
- 
-    model.add(Conv2D(64,(3,3),padding='same',activation='relu'))
-    model.add(MaxPooling2D(pool_size=(2,2)))
- 
-    model.add(Conv2D(128,(3,3),padding='same',activation='relu'))
-    model.add(Dropout(0.2))
- 
-    model.add(Conv2D(128,(3,3),padding='same',activation='relu'))
-    model.add(MaxPooling2D(pool_size=(2,2)))
- 
-    model.add(Flatten())
-    model.add(Dropout(0.2))
-    model.add(Dense(128,activation='relu',\
+    model.add(Dense(64,activation='relu',\
         kernel_constraint=constraints.NonNeg()))
     model.add(Dropout(0.2))
     model.add(Dense(num_classes, activation='softmax',\
