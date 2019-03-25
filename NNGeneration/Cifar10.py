@@ -70,7 +70,7 @@ def base_model():
  
     model.add(Flatten())
     model.add(Dropout(0.2))
-    model.add(Dense(128,activation='relu',\
+    model.add(Dense(512,activation='relu',\
         kernel_constraint=constraints.NonNeg()))
     model.add(Dropout(0.2))
     model.add(Dense(num_classes, activation='softmax',\
@@ -122,8 +122,8 @@ def saveInitModel(model):
     
 model = base_model()
 model.summary()
-saveModel(model, {'acc': 1, 'val_acc': 2, 'loss':3, 'val_loss':4 },'test_save')
-saveInitModel(model)
+#saveModel(model, {'acc': 1, 'val_acc': 2, 'loss':3, 'val_loss':4 },'test_save')
+#saveInitModel(model)
 for e in range(1, epochs+1):
     print('Epoch',e)
     history = model.fit(x_train, y_train, batch_size=batch_size, epochs=1, validation_data=(x_test,y_test),shuffle=True) 
