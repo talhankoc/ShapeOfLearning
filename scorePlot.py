@@ -2,11 +2,13 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import re
 import pickle
+import os
 
 
 def run(scores_fn, x_range, analysis_save_path, close_up_range=0):
-
-
+	folder_name = 'ModelMetrics/'
+	if not os.path.isdir(analysis_save_path + folder_name):
+		os.mkdir(analysis_save_path + folder_name)
 
 	with open(scores_fn, 'r') as f:
 		import re
@@ -36,7 +38,7 @@ def run(scores_fn, x_range, analysis_save_path, close_up_range=0):
 	plt.plot( 'Epochs', 'Test_acc', data=data, marker='o', markerfacecolor='green', markersize=4, color='orange', linewidth=2)
 	axes = plt.gca()
 	plt.legend()
-	save_name = f'accuracy_closeup{close_up_range}.png' if close_up_range != 0 else 'accuracy.png'
+	save_name = f'{folder_name}accuracy_closeup{close_up_range}.png' if close_up_range != 0 else f'{folder_name}accuracy.png'
 	plt.savefig(analysis_save_path + save_name, dpi=400)
 	plt.close()		
 
@@ -45,6 +47,6 @@ def run(scores_fn, x_range, analysis_save_path, close_up_range=0):
 	plt.plot( 'Epochs', 'Test_loss', data=data, marker='o', markerfacecolor='green', markersize=4, color='orange', linewidth=2)
 	axes = plt.gca()
 	plt.legend()
-	save_name = f'loss_closeup{close_up_range}.png' if close_up_range != 0 else 'loss.png'
+	save_name = f'{folder_name}loss_closeup{close_up_range}.png' if close_up_range != 0 else f'{folder_name}loss.png'
 	plt.savefig(analysis_save_path + save_name, dpi=400)
 	plt.close()		

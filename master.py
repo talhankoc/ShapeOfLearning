@@ -47,12 +47,11 @@ gradient.py or delta.py). Any analysis should have a function "runAnalysis"
 that accepts a list of paths to vrData and the analysisSavePath.
 '''
 def runAnalysis():
-	paths = []
+	vrPaths = []
 	for epoch in config["epochs"]:
-		paths.append(vrSavePath(epoch, mkdir=False))
-
-	import sampleAnalysis #vranalysis
-	vranalysis.runAnalysisAndVisualization(paths,analysisSavePath())
+		vrPaths.append(vrSavePath(epoch, mkdir=False))
+	import vranalysis
+	vranalysis.runAnalysisAndVisualization(vrPaths,analysisSavePath()+'bettiDistribution/')
 
 '''
 Makes a directory for nnData if there isn't one and mkdir is
@@ -97,7 +96,7 @@ specified.
 Returns the path to the specified symName path.
 '''
 def analysisSavePath(mkdir=True):
-	path = config["root"] + "analysis/" + config["symname"] + "/"
+	path = config["root"] + "analysis/" + config["symname"] + '/'
 	if not os.path.isdir(path) and mkdir:
 		os.mkdir(path)
 	return path 
@@ -118,13 +117,13 @@ def accSavePath(mkdir=True):
 
 def plotModelMetrics():
 	import scorePlot
-	scorePlot.run(accSavePath(mkdir=False),config['epochs'],analysisSavePath(), close_up_range=2)
+	scorePlot.run(accSavePath(mkdir=False),config['epochs'],analysisSavePath(), close_up_range=0)
 
 config = {
 
 	"root" : f'{os.getcwd()}/',
 
-	"symname" : "Fashion-PositiveWeights-Layers150,50-Dropout10",
+	"symname" : "Fashion-PositiveWeights-Layers128",
 
 	"layerWidths" : [],
 
@@ -139,17 +138,16 @@ config = {
 	"accSaveFn" : accSavePath,
 
 	"nnSaveFnPre":'MODEL_Epoch'
-
 }
 '''
 Change this depending upon what you want to do
 '''
 if __name__ == "__main__":
-	# for epoch in config["epochs"]:
-	# 	runPipeline(epoch)
-		#TODO
-	#runAnalysis()
+	for epoch in config["epochs"]:
+	 	runPipeline(epoch)
 	plotModelMetrics()
+	runAnalysis()
+	
 
 
 
