@@ -21,20 +21,7 @@ def run(bettiAnalysisPaths, savePath):
 			count.append(dic['count'])
 			mean.append(dic['mean'])
 			std.append(dic['std'])
-
-	fig, (ax0, ax1) = plt.subplots(nrows=2, sharex=True)
-	ax0.errorbar(epochs, mean, yerr=std, fmt='-o')
-	ax0.set_title('Epochs')
-	ax1.set_title('Average Life')
-	
-	#plt.plot( 'Epochs', 'Betti 1', data=total_count, marker='o', markerfacecolor='red', markersize=4, color='magenta', linewidth=2)
-	#plt.legend()
-	#fn = path + 'total_count_Betti1_Closeup.png'
-
-	fn = savePath + 'CycleMeanLife.png'
-	plt.savefig(fn, dpi=400)
-	plt.close()
-
+			
 	plt.plot( 'Epochs', 'Mean Life', data=pd.DataFrame({'Epochs': epochs,  'Mean Life':mean}),\
 		marker='o', markerfacecolor='red', markersize=3, color='magenta', linewidth=2)
 	plt.legend()

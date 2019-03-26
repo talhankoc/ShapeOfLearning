@@ -128,6 +128,7 @@ def imageSavePath(epoch):
 def plotModelMetrics():
 	import scorePlot
 	scorePlot.run(accSavePath(mkdir=False),config['epochs'],analysisSavePath(), close_up_range=0)
+	scorePlot.run(accSavePath(mkdir=False),config['epochs'],analysisSavePath(), close_up_range=4)
 
 def makeGIF():
 	import gifMake
@@ -139,11 +140,11 @@ config = {
 
 	"root" : f'{os.getcwd()}/',
 
-	"symname" : "Digits-PositiveWeights-Layers128,64",
+	"symname" : "Digits-PositiveWeights-Layers64,32,16-Repeat",
 
 	"layerWidths" : [],
 
-	"epochs" : [i for i in range(1,101)],
+	"epochs" : [i for i in range(1,21)],
 
 	#"layerNames" : ["Dense",],
 	
@@ -161,7 +162,7 @@ Change this depending upon what you want to do
 if __name__ == "__main__":
 	plotModelMetrics()
 	for epoch in config["epochs"]:
-	 	runPipeline(epoch)
+		runPipeline(epoch)
 	runAnalysis()
 	makeGIF()
 	
