@@ -48,10 +48,12 @@ that accepts a list of paths to vrData and the analysisSavePath.
 '''
 def runAnalysis():
 	vrPaths = []
+	imageSavePaths = []
 	for epoch in config["epochs"]:
 		vrPaths.append(vrSavePath(epoch, mkdir=False))
+		imageSavePaths.append(imageSavePath(epoch))
 	import vranalysis
-	vranalysis.runAnalysisAndVisualization(vrPaths,analysisSavePath()+'bettiDistribution/')
+	vranalysis.runAnalysisAndVisualization(vrPaths,imageSavePaths,analysisBettiDistributionSavePath())
 
 '''
 Makes a directory for nnData if there isn't one and mkdir is
@@ -101,6 +103,11 @@ def analysisSavePath(mkdir=True):
 		os.mkdir(path)
 	return path 
 
+def analysisBettiDistributionSavePath(mkdir=True):
+	path = analysisSavePath(mkdir) + 'bettiDistribution/'
+	if not os.path.isdir(path) and mkdir:
+		os.mkdir(path)
+	return path
 '''
 Makes a directory for testTrainSave if there isn't one and mkdir is 
 specified.
@@ -115,15 +122,24 @@ def accSavePath(mkdir=True):
 		path = path + "_" + str(weight)
 	return path + ".txt"
 
+def imageSavePath(epoch):
+	return analysisBettiDistributionSavePath() + f'Epoch{epoch}_birth_death.png'
+
 def plotModelMetrics():
 	import scorePlot
 	scorePlot.run(accSavePath(mkdir=False),config['epochs'],analysisSavePath(), close_up_range=0)
 
+def makeGIF():
+	import gifMake
+	loadPaths = []
+	for epoch in config["epochs"]:
+		loadPaths.append(imageSavePath(epoch))
+	gifMake.run(loadPaths, analysisSavePath() + 'birthDeath.gif')
 config = {
 
 	"root" : f'{os.getcwd()}/',
 
-	"symname" : "Fashion-PositiveWeights-Layers128",
+	"symname" : "Digits-PositiveWeights-Layers128,64",
 
 	"layerWidths" : [],
 
@@ -143,10 +159,11 @@ config = {
 Change this depending upon what you want to do
 '''
 if __name__ == "__main__":
+	plotModelMetrics()
 	for epoch in config["epochs"]:
 	 	runPipeline(epoch)
-	plotModelMetrics()
 	runAnalysis()
+	makeGIF()
 	
 
 
