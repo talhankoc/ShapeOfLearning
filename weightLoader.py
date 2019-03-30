@@ -41,15 +41,16 @@ def loadWeights(fn, layer_names):
 Loads weights saved by keras_model_saver. The provided path 
 is for a single epoch. Stupid implementation but oh well *shrugs*
 '''
-def simpleLoader(path):
+def simpleLoader(path, layer_numbers=range(1,15)):
 	W = []
-	for i in range(1,15):
+	for i in layer_numbers:
 		try:
 			currData = np.load(path + f"_W{i}.npy")
 			W.append(currData)
 		except:
 			break
 	return W
+
 
 
 

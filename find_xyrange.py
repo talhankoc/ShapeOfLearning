@@ -12,7 +12,7 @@ def run(load_paths):
 			betti1 = np.concatenate(betti1).flatten()
 			finite_dgms = betti1[np.isfinite(betti1)]
 			ax_max, ax_min = np.max(finite_dgms), np.min(finite_dgms)
-			print(f'{fn[-2:]}', ax_max, ax_min)
+			print(f'{fn[-4:]}', ax_max, ax_min)
 			max_x = max(max_x, ax_max)
 			min_x = min(min_x, ax_min)
 

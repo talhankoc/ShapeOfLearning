@@ -16,9 +16,10 @@ def runAnalysisAndVisualization(load_paths, imageSavePaths, root_save_path):
 		load_path, save_path = val
 		with open(load_path, 'rb') as f:
 			diagrams = pickle.load(f)
-		generateBettiDiagram(diagrams, save_path, i+1, max_x)
+		#generateBettiDiagram(diagrams, save_path, i+1, max_x)
 		fn0 = f'{root_save_path}Epoch{i+1}_betti0DistributionAnalysis'
 		fn1 = f'{root_save_path}Epoch{i+1}_betti1DistributionAnalysis'
+		print(f'Saving {fn1}')
 		bettiDistributionAnalysis(diagrams[0], fn0)
 		bettiDistributionAnalysis(diagrams[1], fn1)
 		bettiAnalysisPaths['betti0'].append(fn0)
@@ -49,7 +50,6 @@ def generateBettiDiagram(diagrams, saveFn, i, x_range=None, plot_lifetime_too=Fa
 def bettiDistributionAnalysis(datapoints, saveFn):
 	lifetime = np.array([ [x,y-x] for x,y in datapoints if y != inf ])
 	mean, std = np.mean(lifetime[:,1]), np.std(lifetime[:,1])
-	#above_standard_deviation_points = np.array([point for point in lifetime if point[1] > mean + std ])
 	with open(saveFn, 'wb') as f:
 		pickle.dump(\
 			{'mean':mean, 'std':std, 'count':len(lifetime)},\

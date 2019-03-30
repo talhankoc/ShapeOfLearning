@@ -21,21 +21,22 @@ def run(bettiAnalysisPaths, savePath):
 			count.append(dic['count'])
 			mean.append(dic['mean'])
 			std.append(dic['std'])
-			
+
+	plt.close()
 	plt.plot( 'Epochs', 'Mean Life', data=pd.DataFrame({'Epochs': epochs,  'Mean Life':mean}),\
-		marker='o', markerfacecolor='red', markersize=3, color='magenta', linewidth=2)
+		marker='o', markerfacecolor='red', markersize=0.5, color='magenta', linewidth=0.25)
 	plt.legend()
 	#fn = path + 'average_life_Betti1_Closeup.png'
 	fn = savePath + 'CycleMeanLife.png'
-	plt.savefig(fn, dpi=400)
+	plt.savefig(fn, dpi=2000)
 	plt.close()
 
 	plt.plot( 'Epochs', 'Betti Count', data=pd.DataFrame({'Epochs': epochs,  'Betti Count':count}),\
-		marker='o', markerfacecolor='red', markersize=3, color='magenta', linewidth=2)
+		marker='o', markerfacecolor='red', markersize=0.5, color='magenta', linewidth=0.25)
 	plt.legend()
 	#fn = path + 'average_life_Betti1_Closeup.png'
 	fn = savePath + 'CycleCount.png'
-	plt.savefig(fn, dpi=400)
+	plt.savefig(fn, dpi=2000)
 	plt.close()
 
 

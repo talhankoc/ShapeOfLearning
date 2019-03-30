@@ -15,6 +15,30 @@ def getWeightedAdjacencyMatrixNoBias(W):
 	assert check_symmetric(M)
 	return M
 
+'''
+Matrix takes on this format
+	Input, H1, . . Hn
+H1  xxxxxxxxxxxxxxxxx
+.	xxxxxxxxxxxxxxxxx
+.	xxxxxxxxxxxxxxxxx
+Hn	xxxxxxxxxxxxxxxxx
+Out	xxxxxxxxxxxxxxxxx
+
+'''
+def getRepresentationMatrix(W):
+	assert len(W) > 1
+	row_dim = sum([w.shape[1] for w in W])	# Hidden1 to Hidden-n and output
+	col_dim = sum([w.shape[0] for w in W])	# Input to Hidden-n
+	M = np.zeros((row_dim,col_dim))
+
+	col_offset = 0
+	row_offset = 0
+	for w in W:
+		M[row_offset:row_offset+w.shape[1],col_offset:col_offset+w.shape[0]] = w.T
+		row_offset += w.shape[1]
+		col_offset += w.shape[0]
+	return M
+
 def placeSmallerInBiggerMatrix(rowOffset,colOffset, smaller,bigger):
 	for i in range(0, smaller.shape[0]):
 		for j in range(0, smaller.shape[1]):			

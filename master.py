@@ -31,7 +31,7 @@ be run in parallel by a pool.)
 '''
 def runPipeline(epoch):
 	print('Loading Weights...')
-	weights = wl.simpleLoader(nnSavePath(epoch))
+	weights = wl.simpleLoader(nnSavePath(epoch), config['layerNumbers'])
 	print('Generating Adjacency Matrix...')
 	adjacencyMatrix = adj.getWeightedAdjacencyMatrixNoBias(weights)
 	print('Preprocessing...')
@@ -40,7 +40,25 @@ def runPipeline(epoch):
 	filtration.VR(vrSavePath(epoch),processedMatrix)
 	print(f"Finished epoch: {epoch}")
 
-	
+
+'''
+Runs the full pipeline as above function but it omits the Floyd-Warshall
+algorithm. Instead, nodes are defined by their 
+'''
+# def runAlternativePipeline(epoch):
+# 	print('Loading Weights...')
+# 	weights = wl.simpleLoader(nnSavePath(epoch), )
+# 	print('Generatingn Representation Matrix...')
+# 	M = adj.getWeightedAdjacencyMatrixNoBias(weights)
+# 	print('Preprocessing...')
+# 	M = pp.makeWeightAbsoluteDistance(M)
+# 	M = pp.removeZeros(M)
+# 	print('VRFiltration...')
+# 	filtration.VR(vrSavePath(epoch),M, is_distance_matrix=True)
+# 	print(f"Finished epoch: {epoch}")
+
+
+
 '''
 Analysis is anything that runs using all betti information (for example, 
 gradient.py or delta.py). Any analysis should have a function "runAnalysis"
@@ -128,7 +146,7 @@ def imageSavePath(epoch):
 def plotModelMetrics():
 	import scorePlot
 	scorePlot.run(accSavePath(mkdir=False),config['epochs'],analysisSavePath(), close_up_range=0)
-	scorePlot.run(accSavePath(mkdir=False),config['epochs'],analysisSavePath(), close_up_range=4)
+	#scorePlot.run(accSavePath(mkdir=False),config['epochs'],analysisSavePath(), close_up_range=200)
 
 def makeGIF():
 	import gifMake
@@ -140,15 +158,15 @@ config = {
 
 	"root" : f'{os.getcwd()}/',
 
-	"symname" : "Digits-PositiveWeights-Layers64,32,16-Repeat",
+	"symname" : "Fashion-PositiveWeights-Layers64,32,16-FailedTraining",
 
 	"layerWidths" : [],
 
-	"epochs" : [i for i in range(1,21)],
+	"epochs" : [i for i in range(1,3000)],
 
-	#"layerNames" : ["Dense",],
+	"layerNumbers" : [1,2,3,4],
 	
-	"numProcesses" : 1,
+	"numProcesses" : 4,
 
 	"nnSaveFn" : nnSavePath,
 
@@ -160,11 +178,11 @@ config = {
 Change this depending upon what you want to do
 '''
 if __name__ == "__main__":
+	# for epoch in config["epochs"][2500:]:
+	# 	runPipeline(epoch)
+	#runAnalysis()
 	plotModelMetrics()
-	for epoch in config["epochs"]:
-		runPipeline(epoch)
-	runAnalysis()
-	makeGIF()
+	#makeGIF()
 	
 
 

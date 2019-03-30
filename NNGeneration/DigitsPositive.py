@@ -30,17 +30,17 @@ import tensorflow as tf
 import multiprocessing as mp
  
 # Loading the CIFAR-10 datasets
-from keras.datasets import mnist
+from keras.datasets import fashion_mnist
 
 
-save_folder = 'data/Digits-PositiveWeights-Layers64,32,16-Repeat/'
+save_folder = 'data/Fashion-PositiveWeights-Layers64,32,16-FailedTraining/'
 if not os.path.isdir(save_folder):
         os.mkdir(save_folder)
-batch_size = 32 
+batch_size = 32
 num_classes = 10 
-epochs = 100 
+epochs = 200 
 
-(x_train, y_train), (x_test, y_test) = mnist.load_data()
+(x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
 
 y_train = np_utils.to_categorical(y_train, num_classes)
 y_test = np_utils.to_categorical(y_test, num_classes)
@@ -52,18 +52,19 @@ x_test /= 255
 def base_model():
     model = Sequential()
     model.add(Flatten(input_shape=(28, 28)))
+    model.add(Dropout(0.2))
 
     model.add(Dense(64,activation='relu',
         kernel_constraint=constraints.NonNeg()))
-    #model.add(Dropout(0.05))
+    model.add(Dropout(0.10))
 
     model.add(Dense(32,activation='relu',
         kernel_constraint=constraints.NonNeg()))
-    #model.add(Dropout(0.01))
+    model.add(Dropout(0.0))
 
     model.add(Dense(16,activation='relu',
         kernel_constraint=constraints.NonNeg()))
-    #model.add(Dropout(0.01))
+    model.add(Dropout(0.0))
 
     model.add(Dense(num_classes, activation='softmax',\
         kernel_constraint=constraints.NonNeg()))
@@ -113,13 +114,12 @@ def saveInitModel(model):
 
     
 model = base_model()
-#load_model_at_epoch(model, 150)
+load_model_at_epoch(model, 2500)
 model.summary()
-for e in range(1, 200+1):
+for e in range(2501, 3000):
     print('Epoch',e)
     history = model.fit(x_train, y_train, batch_size=batch_size, epochs=1, validation_data=(x_test,y_test),shuffle=True) 
-    print('\nTest accuracy:',history.history['val_acc'],'\n','Train accuracy:',history.history['acc'])
-    #saver.save_model(model,model_save_directory,f'MODEL_Epoch{e}')
+    print('Test accuracy:',history.history['val_acc'][0],'\n','Train accuracy:',history.history['acc'][0],'\n')
     saveModel(model, history.history, f'MODEL_Epoch{e}')
 
     
