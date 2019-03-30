@@ -9,8 +9,8 @@ from multiprocessing import Pool
 Runs all betti generation in parallel using the runPipeline function.
 '''
 def bulkProcess():
-	pool = Pool(processes = config["numProcesses"])
-	pool.map(runPipeline,config["epochs"])
+	for epoch in config["epochs"]:
+		runPipeline(epoch)
 	
 '''
 Trains any network. The network should take the nnSavePath function as an 
@@ -19,7 +19,7 @@ else needs to change.
 '''
 def trainNetwork():
 	import NNGeneration.NNDigits as digits
-	digits.makeAndRun(config)
+	digits.randomModel(config)
 
 
 '''
@@ -30,14 +30,11 @@ a pool.
 be run in parallel by a pool.)
 '''
 def runPipeline(epoch):
-	print('Loading Weights...')
 	weights = wl.simpleLoader(nnSavePath(epoch))
-	print('Generating Adjacency Matrix...')
 	adjacencyMatrix = adj.getWeightedAdjacencyMatrixNoBias(weights)
-	print('Preprocessing...')
 	processedMatrix = pp.standardVR(adjacencyMatrix)
-	print('VRFiltration...')
 	filtration.VR(vrSavePath(epoch),processedMatrix)
+
 	print(f"Finished epoch: {epoch}")
 
 	
@@ -47,13 +44,17 @@ gradient.py or delta.py). Any analysis should have a function "runAnalysis"
 that accepts a list of paths to vrData and the analysisSavePath.
 '''
 def runAnalysis():
+	import analysis
+	'''
 	vrPaths = []
 	imageSavePaths = []
 	for epoch in config["epochs"]:
 		vrPaths.append(vrSavePath(epoch, mkdir=False))
 		imageSavePaths.append(imageSavePath(epoch))
-	import vranalysis
-	vranalysis.runAnalysisAndVisualization(vrPaths,imageSavePaths,analysisBettiDistributionSavePath())
+	
+	analysis.runAnalysisAndVisualization(vrPaths,imageSavePaths,analysisBettiDistributionSavePath())
+	'''
+	analysis.runFloydReplacement(config)
 
 '''
 Makes a directory for nnData if there isn't one and mkdir is
@@ -136,17 +137,18 @@ def makeGIF():
 	for epoch in config["epochs"]:
 		loadPaths.append(imageSavePath(epoch))
 	gifMake.run(loadPaths, analysisSavePath() + 'birthDeath.gif')
+
 config = {
 
-	"root" : f'{os.getcwd()}/',
+	"root" : "/Users/kunaalsharma/Desktop/MATH 494/MATH 493/ShapeOfLearning/",
 
-	"symname" : "Digits-PositiveWeights-Layers64,32,16-Repeat",
+	"symname" : "DigitsSimple",
 
-	"layerWidths" : [],
+	"layerWidths" : [8],
 
-	"epochs" : [i for i in range(1,21)],
+	"epochs" : [i for i in range(1,51)],
 
-	#"layerNames" : ["Dense",],
+	"layerNames" : ["Dense",],
 	
 	"numProcesses" : 1,
 
@@ -154,18 +156,19 @@ config = {
 
 	"accSaveFn" : accSavePath,
 
-	"nnSaveFnPre":'MODEL_Epoch'
+	"analysisSaveFn": analysisSavePath,
+
+	"inputSize" : 784,
+
+	"outputSize" : 10,
+
+	"nnSaveFnPre":""#'MODEL_Epoch'
 }
 '''
 Change this depending upon what you want to do
 '''
 if __name__ == "__main__":
-	plotModelMetrics()
-	for epoch in config["epochs"]:
-		runPipeline(epoch)
 	runAnalysis()
-	makeGIF()
-	
 
 
 
