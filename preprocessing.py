@@ -1,5 +1,5 @@
 import numpy as np
-from tqdm import tqdm
+#from tqdm import tqdm
 from numpy import asarray, inf, minimum, diagonal, newaxis
 
 '''
@@ -12,9 +12,20 @@ The resulting matrix is returned
 def standardVR(adjacencyMatrix):
 	matrix = makeWeightAbsoluteDistance(adjacencyMatrix)
 	matrix = removeZeros(matrix)
-	matrix = floydWarshallFastest(matrix)
-	return matrix
+	shortest_matrix = floydWarshallFastest(matrix.copy())
+    shortest_matrix = keepOriginalWeightsStatic(shortest_matrix, matrix)
+	return shortest_matrix
 
+'''
+This function takes the shortest distance matrix and replaces those non-infinity weights
+from original adjacency matrix back into the shortest distance matrix
+'''
+def keepOriginalWeightsStatic(shortest_matrix, matrix):
+    for i in range(matrix.shape[0]):
+        for j in range(matrix.shape[1]):
+            if matrix[i,j] != inf:
+                shortest_matrix[i,j] = matrix[i,j]
+    return shortest_matrix
 '''
 This function takes in a matrix with entries representing weights between pairs of vertices, 
 and returns a transformed matrix with each entry being 1/the weight

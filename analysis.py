@@ -67,18 +67,21 @@ def runFloydReplacement(config):
 	import weightLoader as wl
 	import generateAdjacencyMatrix as adj
 	import preprocessing as pp
+	from NNGeneration.DigitsPositive import base_model, get_dataset
 
-	model = digits.emptyModel(config)
-	xTrain,yTrain,xTest,yTest = utils.mnistTrainTest()
+	#model = digits.emptyModel(config)
+	#xTrain,yTrain,xTest,yTest = utils.mnistTrainTest()
+	model = base_model()
+	xTrain, xTest, yTrain, yTest = get_dataset()
 	trainAccs = []
 	testAccs = []
 
 	for epoch in config["epochs"]:
 		weights = wl.simpleLoader(config["nnSaveFn"](epoch))
-		adjacencyMatrix = adj.getWeightedAdjacencyMatrixNoBias(weights)
+		adjacencyMatrix = adj.getWeightedAdjacencyMatrixNoBias(weights.copy())
 		processedMatrix = pp.standardVR(adjacencyMatrix)
 
-		model = utils.replaceModelParams(model,epoch,processedMatrix,config)
+		model = utils.replaceModelParams(model,epoch,processedMatrix,config, weights)
 		train = utils.getAccuracy(model,xTrain,yTrain)
 		test = utils.getAccuracy(model,xTest,yTest)
 
@@ -95,7 +98,6 @@ def runFloydReplacement(config):
 		for i in range(len(trainAccs)):
 			f.write(f"{i},\t{trainAccs[i]},\t{testAccs[i]}")
 	return 
-
 
 
 
