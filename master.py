@@ -3,6 +3,7 @@ import generateAdjacencyMatrix as adj
 import preprocessing as pp
 import filtration
 import os
+import numpy as np
 from multiprocessing import Pool 
 
 '''
@@ -39,23 +40,19 @@ def runPipeline(epoch):
 
 	print(f"Finished epoch: {epoch}")
 
+def runSTDAnalysis():
+	print('running STD analysis')
+	data = [[] for i in range(len(config['layerNumbers']))]
+	for epoch in config['epochs']:
+		weights = wl.simpleLoader(nnSavePath(epoch), config['layerNumbers'])
+		for i,W in enumerate(weights):
+			val = np.std(W)
+			data[i].append(val)
 
-'''
-Runs the full pipeline as above function but it omits the Floyd-Warshall
-algorithm. Instead, nodes are defined by their 
-'''
-# def runAlternativePipeline(epoch):
-# 	print('Loading Weights...')
-# 	weights = wl.simpleLoader(nnSavePath(epoch), )
-# 	print('Generatingn Representation Matrix...')
-# 	M = adj.getWeightedAdjacencyMatrixNoBias(weights)
-# 	print('Preprocessing...')
-# 	M = pp.makeWeightAbsoluteDistance(M)
-# 	M = pp.removeZeros(M)
-# 	print('VRFiltration...')
-# 	filtration.VR(vrSavePath(epoch),M, is_distance_matrix=True)
-# 	print(f"Finished epoch: {epoch}")
-
+	for i, lst in enumerate(data):
+		layer_number = i + 1
+		fn = stdAnalysisFn(layer_number)
+		#TODO  plot and save figure to fn
 
 
 '''
@@ -143,6 +140,9 @@ def accSavePath(mkdir=True):
 		path = path + "_" + str(weight)
 	return path + ".txt"
 
+def stdAnalysisFn(layer_number):
+	return f'Layer_{layer_number}_stdPlot.png'
+
 def imageSavePath(epoch):
 	return analysisBettiDistributionSavePath() + f'Epoch{epoch}_birth_death.png'
 
@@ -160,13 +160,13 @@ def makeGIF():
 
 config = {
 
-	"root" : "/Users/kunaalsharma/Desktop/MATH 494/MATH 493/ShapeOfLearning/",
+	"root" : f'{os.getcwd()}/',
 
-	"symname" : "DigitsSimple",
+	"symname" : "Digits-PositiveWeights-Layers64,32,16-Dropout",
 
-	"layerWidths" : [8],
+	"layerWidths" : [64,32,16],
 
-	"epochs" : [i for i in range(1,51)],
+	"epochs" : [i for i in range(100,201)],
 
 	"layerNames" : ["Dense",],
 
@@ -178,22 +178,22 @@ config = {
 
 	"analysisSaveFn": analysisSavePath,
 
+	"stdAnalysisFn": stdAnalysisFn,
+
 	"inputSize" : 784,
 
 	"outputSize" : 10,
 
-	"nnSaveFnPre":""#'MODEL_Epoch'
+	"nnSaveFnPre":'MODEL_Epoch'
 }
 '''
 Change this depending upon what you want to do
 '''
 if __name__ == "__main__":
-	# for epoch in config["epochs"][2500:]:
-	# 	runPipeline(epoch)
-	#runAnalysis()
+	for epoch in config["epochs"][2500:]:
+		runPipeline(epoch)
+	runAnalysis()
 	plotModelMetrics()
 	#makeGIF()
-
-
 
 
