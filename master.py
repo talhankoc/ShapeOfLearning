@@ -19,7 +19,7 @@ else needs to change.
 '''
 def trainNetwork():
 	import NNGeneration.NNDigits as digits
-	digits.randomModel(config)
+	digits.makeAndRun(config)
 
 
 '''
@@ -31,12 +31,11 @@ be run in parallel by a pool.)
 '''
 def runPipeline(epoch):
 	print('Loading Weights...')
-	weights = wl.simpleLoader(nnSavePath(epoch), config['layerNumbers'])
+	weights = wl.simpleLoader(nnSavePath(epoch))
 	print('Generating Adjacency Matrix...')
 	adjacencyMatrix = adj.getWeightedAdjacencyMatrixNoBias(weights)
 	processedMatrix = pp.standardVR(adjacencyMatrix)
 	filtration.VR(vrSavePath(epoch),processedMatrix)
-
 	print(f"Finished epoch: {epoch}")
 
 
@@ -162,9 +161,9 @@ config = {
 
 	"root" : "/Users/kunaalsharma/Desktop/MATH 494/MATH 493/ShapeOfLearning/",
 
-	"symname" : "DigitsSimple",
+	"symname" : "temp",
 
-	"layerWidths" : [8],
+	"layerWidths" : [16],
 
 	"epochs" : [i for i in range(1,51)],
 
@@ -188,11 +187,11 @@ config = {
 Change this depending upon what you want to do
 '''
 if __name__ == "__main__":
-	# for epoch in config["epochs"][2500:]:
-	# 	runPipeline(epoch)
-	#runAnalysis()
-	plotModelMetrics()
-	#makeGIF()
+	for l in [[32],[8,8],[16,8],[16,16],[8,8,8],[16,16,16],[32,32],[64]]:
+		config["layerWidths"] = l
+		trainNetwork()
+		bulkProcess()
+		plotModelMetrics()
 
 
 
