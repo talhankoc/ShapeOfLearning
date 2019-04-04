@@ -18,8 +18,11 @@ and accuracies are saved at the end.
 '''
 def makeAndRun(config):
 	batch_size = 64
-	mnist = tf.keras.datasets.fashion_mnist
-	(x_train, y_train),(x_test, y_test) = mnist.load_data()
+	from keras.datasets import cifar10
+	#from keras.datasets import mnist
+	#from keras.datasets import fashion_mnist
+	dataset = cifar10
+	(x_train, y_train),(x_test, y_test) = dataset.load_data()
 	y_train = np_utils.to_categorical(y_train, 10)
 	y_test = np_utils.to_categorical(y_test, 10)
 	x_train = x_train.astype('float32')
