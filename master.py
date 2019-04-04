@@ -20,7 +20,7 @@ else needs to change.
 '''
 def trainNetwork():
 	import NNGeneration.NNDigits as digits
-	digits.randomModel(config)
+	digits.makeAndRun(config)
 
 
 '''
@@ -162,11 +162,11 @@ config = {
 
 	"root" : f'{os.getcwd()}/',
 
-	"symname" : "Digits-PositiveWeights-Layers64,32,16-Dropout",
+	"symname" : "Fashion-128,64,32-Dropout0",
 
-	"layerWidths" : [64,32,16],
+	"layerWidths" : [128,64,32],
 
-	"epochs" : [i for i in range(100,201)],
+	"epochs" : [i for i in range(1,201)],
 
 	"layerNames" : ["Dense",],
 
@@ -184,16 +184,13 @@ config = {
 
 	"outputSize" : 10,
 
-	"nnSaveFnPre":'MODEL_Epoch'
+	"nnSaveFnPre":''
 }
 '''
 Change this depending upon what you want to do
 '''
 if __name__ == "__main__":
-	for epoch in config["epochs"][2500:]:
-		runPipeline(epoch)
-	runAnalysis()
-	plotModelMetrics()
+	trainNetwork()
 	#makeGIF()
 
 

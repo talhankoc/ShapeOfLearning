@@ -13,7 +13,7 @@ def standardVR(adjacencyMatrix):
 	matrix = makeWeightAbsoluteDistance(adjacencyMatrix)
 	matrix = removeZeros(matrix)
 	shortest_matrix = floydWarshallFastest(matrix.copy())
-    shortest_matrix = keepOriginalWeightsStatic(shortest_matrix, matrix)
+	shortest_matrix = keepOriginalWeightsStatic(shortest_matrix, matrix)
 	return shortest_matrix
 
 '''
