@@ -1,5 +1,6 @@
 import tensorflow as tf
 import NNGeneration.save_keras_model as saver
+import numpy as np
 from tensorflow import keras 
 from NNGeneration.nnUtil import randomUpdateModel
 from keras.utils import np_utils
@@ -7,7 +8,10 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import Dropout
 from keras.layers import Flatten
+from keras.layers import Conv2D, MaxPooling2D, BatchNormalization, Activation
+from keras import regularizers
 from pathlib import Path
+
 
 '''
 Config is a dictionary passed by master.py 
@@ -18,19 +22,24 @@ and accuracies are saved at the end.
 '''
 def makeAndRun(config):
 	batch_size = 64
-	from keras.datasets import cifar10
-	#from keras.datasets import mnist
-	#from keras.datasets import fashion_mnist
-	dataset = cifar10
+	from keras.datasets import cifar10 as dataset
+	#from keras.datasets import mnist as dataset
+	#from keras.datasets import fashion_mnist as dataset
 	(x_train, y_train),(x_test, y_test) = dataset.load_data()
 	y_train = np_utils.to_categorical(y_train, 10)
 	y_test = np_utils.to_categorical(y_test, 10)
 	x_train = x_train.astype('float32')
 	x_test = x_test.astype('float32')
 	x_train, x_test = x_train / 255.0, x_test / 255.0
+	x_train = np.array(x_train)
+	x_test = np.array(x_test)
+	if 'cifar10' in str(dataset):
+		rgb2gray = lambda imgs: 0.2989 * imgs[:,:,:,0] + 0.5870 * imgs[:,:,:,1] + 0.1140 * imgs[:,:,:,2]
+		x_train = rgb2gray(x_train)
+		x_test = rgb2gray(x_test)
 	
-	model = emptyModel(config)
-
+	model = baseModel(config)
+	model.summary()
 	train_accuracies = []
 	test_accuracies = []
 	for epoch in config["epochs"]:
@@ -46,11 +55,41 @@ def makeAndRun(config):
 '''
 Returns an untrained model without any initialized parameters. 
 '''
-def emptyModel(config):
+def baseModel(config):
 	node_count_list = config["layerWidths"]
 	model = Sequential()
-	model.add(Flatten(input_shape=(28, 28)))
-	model.add(Dropout(0.0))
+	model.add(Flatten(input_shape=(32,32)))
+	model.add(Dropout(0.2))
+	for number_of_units in node_count_list:
+		model.add(Dense(number_of_units, activation=tf.nn.relu))
+	model.add(Dense(10, activation=tf.nn.softmax))
+	model.compile(optimizer='adam',
+			  loss='categorical_crossentropy',
+			  metrics=['accuracy'])
+	return model
+'''
+Returns an untrained model without any initialized parameters. 
+'''
+def cnnModel(config):
+	node_count_list = config["layerWidths"]
+	model = Sequential()
+
+	weight_decay = 1e-4
+	model.add(Conv2D(32, (3,3), padding='same', kernel_regularizer=regularizers.l2(weight_decay),\
+    	input_shape=(32,32,3)))
+	model.add(Activation('elu'))
+	model.add(BatchNormalization())
+	model.add(MaxPooling2D(pool_size=(2,2)))
+	model.add(Dropout(0.2))
+
+	model.add(Conv2D(64, (3,3), padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
+	model.add(Activation('elu'))
+	model.add(BatchNormalization())
+	model.add(MaxPooling2D(pool_size=(2,2)))
+	model.add(Dropout(0.2))
+
+	model.add(Flatten())
+	#model.add(Dropout(0.2))
 	for number_of_units in node_count_list:
 		model.add(Dense(number_of_units, activation=tf.nn.relu))
 	model.add(Dense(10, activation=tf.nn.softmax))

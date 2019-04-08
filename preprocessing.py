@@ -12,8 +12,8 @@ The resulting matrix is returned
 def standardVR(adjacencyMatrix):
 	matrix = makeWeightAbsoluteDistance(adjacencyMatrix)
 	matrix = removeZeros(matrix)
-	shortest_matrix = floydWarshallFastest(matrix.copy())
-	shortest_matrix = keepOriginalWeightsStatic(shortest_matrix, matrix)
+	shortest_matrix = floydWarshallFastest(matrix)
+	#shortest_matrix = keepOriginalWeightsStatic(shortest_matrix, matrix)
 	return shortest_matrix
 
 '''
@@ -21,11 +21,11 @@ This function takes the shortest distance matrix and replaces those non-infinity
 from original adjacency matrix back into the shortest distance matrix
 '''
 def keepOriginalWeightsStatic(shortest_matrix, matrix):
-    for i in range(matrix.shape[0]):
-        for j in range(matrix.shape[1]):
-            if matrix[i,j] != inf:
-                shortest_matrix[i,j] = matrix[i,j]
-    return shortest_matrix
+	for i in range(matrix.shape[0]):
+		for j in range(matrix.shape[1]):
+			if matrix[i,j] != inf:
+				shortest_matrix[i,j] = matrix[i,j]
+	return shortest_matrix
 '''
 This function takes in a matrix with entries representing weights between pairs of vertices, 
 and returns a transformed matrix with each entry being 1/the weight
@@ -63,29 +63,49 @@ def makeWeightAbsoluteDistance(matrix):
 '''
 floydWarshallFastest(adjacency_matrix) -> shortest_path_distance_matrix
 Input
-    An NxN NumPy array describing the directed distances between N nodes.
-    adjacency_matrix[i,j] = distance to travel directly from node i to node j (without passing through other nodes)
-    Notes:
-    * If there is no edge connecting i->j then adjacency_matrix[i,j] should be equal to numpy.inf.
-    * The diagonal of adjacency_matrix should be zero.
+	An NxN NumPy array describing the directed distances between N nodes.
+	adjacency_matrix[i,j] = distance to travel directly from node i to node j (without passing through other nodes)
+	Notes:
+	* If there is no edge connecting i->j then adjacency_matrix[i,j] should be equal to numpy.inf.
+	* The diagonal of adjacency_matrix should be zero.
 Output
-    An NxN NumPy array such that result[i,j] is the shortest distance to travel between node i and node j. If no such path exists then result[i,j] == numpy.inf
+	An NxN NumPy array such that result[i,j] is the shortest distance to travel between node i and node j. If no such path exists then result[i,j] == numpy.inf
 '''
 def floydWarshallFastest(adjacency_matrix):
-    (mat, n) = check_and_convert_adjacency_matrix(adjacency_matrix)
-    for k in range(n):
-        mat = minimum(mat, mat[newaxis,k,:] + mat[:,k,newaxis]) 
-    return mat
+	(mat, n) = check_and_convert_adjacency_matrix(adjacency_matrix)
+	for k in range(n):
+		mat = minimum(mat, mat[newaxis,k,:] + mat[:,k,newaxis]) 
+		printProgressBar(k + 1, n, prefix = 'Progress:', suffix = 'Complete', length = 50)
+	return mat
 
 '''
 Helper function for floydWarshallFastest
 '''
 def check_and_convert_adjacency_matrix(adjacency_matrix):
-    mat = asarray(adjacency_matrix)
-    (nrows, ncols) = mat.shape
-    assert nrows == ncols
-    n = nrows
-    assert (diagonal(mat) == 0.0).all()
-    return (mat, n)
+	mat = asarray(adjacency_matrix)
+	(nrows, ncols) = mat.shape
+	assert nrows == ncols
+	n = nrows
+	assert (diagonal(mat) == 0.0).all()
+	return (mat, n)
 
+def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█'):
+	"""
+	Call in a loop to create terminal progress bar
+	@params:
+		iteration   - Required  : current iteration (Int)
+		total       - Required  : total iterations (Int)
+		prefix      - Optional  : prefix string (Str)
+		suffix      - Optional  : suffix string (Str)
+		decimals    - Optional  : positive number of decimals in percent complete (Int)
+		length      - Optional  : character length of bar (Int)
+		fill        - Optional  : bar fill character (Str)
+	"""
+	percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
+	filledLength = int(length * iteration // total)
+	bar = fill * filledLength + '-' * (length - filledLength)
+	print('\r%s |%s| %s%% %s' % (prefix, bar, percent, suffix), end = '\r')
+	# Print New Line on Complete
+	if iteration == total: 
+		print()
 

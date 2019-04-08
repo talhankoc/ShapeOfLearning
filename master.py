@@ -4,6 +4,7 @@ import preprocessing as pp
 import filtration
 import os
 import numpy as np
+import matplotlib.pyplot as plt
 from multiprocessing import Pool 
 
 '''
@@ -32,9 +33,10 @@ be run in parallel by a pool.)
 '''
 def runPipeline(epoch):
 	print('Loading Weights...')
-	weights = wl.simpleLoader(nnSavePath(epoch), config['layerNumbers'])
+	weights = wl.simpleLoader(nnSavePath(epoch))
 	print('Generating Adjacency Matrix...')
 	adjacencyMatrix = adj.getWeightedAdjacencyMatrixNoBias(weights)
+	print('Preprocessing')
 	processedMatrix = pp.standardVR(adjacencyMatrix)
 	filtration.VR(vrSavePath(epoch),processedMatrix)
 
@@ -42,18 +44,22 @@ def runPipeline(epoch):
 
 def runSTDAnalysis():
 	print('running STD analysis')
-	data = [[] for i in range(len(config['layerNumbers']))]
+	data = [[] for i in range( len(config['layerWidths']) + 1) ]
 	for epoch in config['epochs']:
-		weights = wl.simpleLoader(nnSavePath(epoch), config['layerNumbers'])
+		weights = wl.simpleLoader(nnSavePath(epoch))
+		s = ''
 		for i,W in enumerate(weights):
 			val = np.std(W)
 			data[i].append(val)
+			s += f'{val}\t'
+		print(s)
 
-	for i, lst in enumerate(data):
-		layer_number = i + 1
-		fn = stdAnalysisFn(layer_number)
-		#TODO  plot and save figure to fn
-
+	x = config['epochs']
+	for lst in data:
+		plt.plot(x, lst)
+	plt.legend([f'W{i+1}' for i in range(len(data))], loc='upper left')
+	plt.savefig(stdAnalysisFn())
+	plt.close()
 
 '''
 Analysis is anything that runs using all betti information (for example, 
@@ -62,7 +68,7 @@ that accepts a list of paths to vrData and the analysisSavePath.
 '''
 def runAnalysis():
 	import analysis
-	'''
+	
 	vrPaths = []
 	imageSavePaths = []
 	for epoch in config["epochs"]:
@@ -70,8 +76,8 @@ def runAnalysis():
 		imageSavePaths.append(imageSavePath(epoch))
 	
 	analysis.runAnalysisAndVisualization(vrPaths,imageSavePaths,analysisBettiDistributionSavePath())
-	'''
-	analysis.runFloydReplacement(config)
+	
+	# analysis.runFloydReplacement(config)
 
 '''
 Makes a directory for nnData if there isn't one and mkdir is
@@ -140,8 +146,8 @@ def accSavePath(mkdir=True):
 		path = path + "_" + str(weight)
 	return path + ".txt"
 
-def stdAnalysisFn(layer_number):
-	return f'Layer_{layer_number}_stdPlot.png'
+def stdAnalysisFn():
+	return analysisSavePath() + 'STD_Plot.png'
 
 def imageSavePath(epoch):
 	return analysisBettiDistributionSavePath() + f'Epoch{epoch}_birth_death.png'
@@ -162,13 +168,13 @@ config = {
 
 	"root" : f'{os.getcwd()}/',
 
-	"symname" : "Fashion-128,64,32-Dropout0",
+	"symname" : "Fashion-128,64,32-Dropout15",
 
 	"layerWidths" : [128,64,32],
 
 	"epochs" : [i for i in range(1,201)],
 
-	"layerNames" : ["Dense",],
+	#"layerNames" : ["Dense",],
 
 	"numProcesses" : 4,
 
@@ -190,7 +196,12 @@ config = {
 Change this depending upon what you want to do
 '''
 if __name__ == "__main__":
-	trainNetwork()
+	#trainNetwork()
+	#runSTDAnalysis()
+	for epoch in config['epochs']:
+		runPipeline(epoch)
+	runAnalysis()
+	
 	#makeGIF()
 
 
