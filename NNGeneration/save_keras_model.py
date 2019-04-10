@@ -1,6 +1,6 @@
 import numpy as np
 
-def save_model(model, location, name):
+def save_model(model, fn):
 	i = 0
 	for layer in model.layers:
 		weights = layer.get_weights() # list of numpy arrays
@@ -8,5 +8,5 @@ def save_model(model, location, name):
 			i += 1
 			W = np.array(weights[0])
 			b = np.array(weights[1])
-			np.save(location+name+"_W"+str(i),W)
-			np.save(location+name+"_b"+str(i),b)
+			np.save(f"{fn}_W"+str(i),W)
+			np.save(f"{fn}_b"+str(i),b)

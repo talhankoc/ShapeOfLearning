@@ -4,6 +4,7 @@ import preprocessing as pp
 import filtration
 import os
 import numpy as np
+import matplotlib.pyplot as plt
 from multiprocessing import Pool 
 
 '''
@@ -26,7 +27,6 @@ def trainNetwork():
 '''
 Runs the full pipeline for a given epoch. This function can be put into
 a pool.
-
 (Only runs the pipeline for a single epoch intentionally, so that it can 
 be run in parallel by a pool.)
 '''
@@ -35,30 +35,30 @@ def runPipeline(epoch):
 	weights = wl.simpleLoader(nnSavePath(epoch))
 	print('Generating Adjacency Matrix...')
 	adjacencyMatrix = adj.getWeightedAdjacencyMatrixNoBias(weights)
+	print('Preprocessing')
 	processedMatrix = pp.standardVR(adjacencyMatrix)
 	filtration.VR(vrSavePath(epoch),processedMatrix)
+
 	print(f"Finished epoch: {epoch}")
 
 def runSTDAnalysis():
 	print('running STD analysis')
-	data = [[] for i in range(1+len(config['layerWidths']))]
+	data = [[] for i in range( len(config['layerWidths']) + 1) ]
 	for epoch in config['epochs']:
-		print(epoch)
 		weights = wl.simpleLoader(nnSavePath(epoch))
-		print(weights)
+		s = ''
 		for i,W in enumerate(weights):
 			val = np.std(W)
-			print(val)
 			data[i].append(val)
+			s += f'{val}\t'
+		print(s)
 
-	# for i, lst in enumerate(data):
-	# 	layer_number = i + 1
-	# 	fn = stdAnalysisFn(layer_number)
-	
-	for l1, l2 in zip(data[0],data[1]):
-		print(f'{l1}\t{l2}')
-
-
+	x = config['epochs']
+	for lst in data:
+		plt.plot(x, lst)
+	plt.legend([f'W{i+1}' for i in range(len(data))], loc='upper left')
+	plt.savefig(stdAnalysisFn())
+	plt.close()
 
 '''
 Analysis is anything that runs using all betti information (for example, 
@@ -67,6 +67,7 @@ that accepts a list of paths to vrData and the analysisSavePath.
 '''
 def runAnalysis():
 	import analysis
+	
 	vrPaths = []
 	imageSavePaths = []
 	for epoch in config["epochs"]:
@@ -74,6 +75,8 @@ def runAnalysis():
 		imageSavePaths.append(imageSavePath(epoch))
 	
 	analysis.runAnalysisAndVisualization(vrPaths,imageSavePaths,analysisBettiDistributionSavePath())
+	
+	# analysis.runFloydReplacement(config)
 
 '''
 Makes a directory for nnData if there isn't one and mkdir is
@@ -142,8 +145,8 @@ def accSavePath(mkdir=True):
 		path = path + "_" + str(weight)
 	return path + ".txt"
 
-def stdAnalysisFn(layer_number):
-	return f'Layer_{layer_number}_stdPlot.png'
+def stdAnalysisFn():
+	return analysisSavePath() + 'STD_Plot.png'
 
 def imageSavePath(epoch):
 	return analysisBettiDistributionSavePath() + f'Epoch{epoch}_birth_death.png'
@@ -164,13 +167,13 @@ config = {
 
 	"root" : f'{os.getcwd()}/',
 
-	"symname" : "temp",
+	"symname" : "Fashion-128,64,32-Dropout15",
 
-	"layerWidths" : [8],
+	"layerWidths" : [128,64,32],
 
-	"epochs" : [i for i in range(1,51)],
+	"epochs" : [i for i in range(1,201)],
 
-	"layerNames" : ["Dense",],
+	#"layerNames" : ["Dense",],
 
 	"numProcesses" : 4,
 
@@ -186,17 +189,17 @@ config = {
 
 	"outputSize" : 10,
 
-	"nnSaveFnPre":'MODEL_Epoch'
+	"nnSaveFnPre":''
 }
 '''
 Change this depending upon what you want to do
 '''
 if __name__ == "__main__":
-	# for l in [[32],[8,8],[16,8],[16,16],[8,8,8],[16,16,16],[32,32],[64]]:
-	# 	config["layerWidths"] = l
-	# 	trainNetwork()
-	# 	bulkProcess()
-	# 	plotModelMetrics()
+	#trainNetwork()
+	#runSTDAnalysis()
+	for epoch in config['epochs']:
+		runPipeline(epoch)
 	runAnalysis()
-
+	
+	#makeGIF()
 
