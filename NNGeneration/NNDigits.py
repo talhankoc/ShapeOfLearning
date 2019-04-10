@@ -21,17 +21,21 @@ def makeAndRun(config):
 	model = emptyModel(config)
 
 	train_accuracies = []
+	train_losses = []
 	test_accuracies = []
+	test_losses = []
 	for epoch in epochs:
 		model.fit(x_train,y_train,verbose=1)
 		train_loss, train_acc = model.evaluate(x_train, y_train, verbose=0)
 		test_loss, test_acc = model.evaluate(x_test, y_test, verbose=0)
+		train_losses.append(train_loss)
 		train_accuracies.append(train_acc)
+		test_losses.append(test_loss)
 		test_accuracies.append(test_acc)
+		print(f"Finished update {epoch}. Train: {train_acc}, Test:{test_acc}")
 		saver.save_model(model,nnSaveFn(epoch),"")
-		
-	#save the train and test accuracy at the end 
-	saveAccuracies(accSaveFn(),train_accuracies,test_accuracies)
+
+	saveAccuracies(accSaveFn(),train_accuracies,test_accuracies,train_losses,test_losses)
 	return
 
 '''
@@ -45,7 +49,7 @@ def emptyModel(config):
 		model.add(keras.layers.Dense(number_of_units, activation=tf.nn.relu))
 	model.add(keras.layers.Dense(10, activation=tf.nn.softmax))
 	model.compile(optimizer='adam',
-	          loss='sparse_categorical_crossentropy',
+	          loss='categorical_crossentropy',
 	          metrics=['accuracy'])
 	return model
 
@@ -63,25 +67,28 @@ def randomModel(config):
 	x_train, x_test = x_train / 255.0, x_test / 255.0
 
 	train_accuracies = []
+	train_losses = []
 	test_accuracies = []
+	test_losses = []
 	for epoch in epochs:
 		model = randomUpdateModel(model)
 		train_loss, train_acc = model.evaluate(x_train, y_train, verbose=0)
 		test_loss, test_acc = model.evaluate(x_test, y_test, verbose=0)
+		train_losses.append(train_loss)
 		train_accuracies.append(train_acc)
+		test_losses.append(test_loss)
 		test_accuracies.append(test_acc)
 		print(f"Finished update {epoch}. Train: {train_acc}, Test:{test_acc}")
 		saver.save_model(model,nnSaveFn(epoch),"")
 
-	saveAccuracies(accSaveFn(),train_accuracies,test_accuracies)
+	saveAccuracies(accSaveFn(),train_accuracies,test_accuracies,train_losses,test_losses)
 	return
 
-def saveAccuracies(path,train_acc,test_acc):
+def saveAccuracies(path,train_acc,test_acc,train_losses,test_losses):
 	with open(path,"w") as f:
+		f.write("acc \t loss \t val_acc \t val_loss\n")
 		for epoch in range(len(test_acc)):
-			train,test = train_acc[epoch], test_acc[epoch]
-			if epoch == 0:
-				f.write(f"1,\t{train},\t{test}")
-			else:
-				f.write(f"\n{epoch+1},\t{train},\t{test}")
+			train, test = train_acc[epoch], test_acc[epoch]
+			train_loss, test_loss = train_losses[epoch], test_losses[epoch]
+			f.write(f"{train}\t{train_loss}\t{test}\t{test_loss}\n")
 	return 

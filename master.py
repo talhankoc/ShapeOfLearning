@@ -3,6 +3,7 @@ import generateAdjacencyMatrix as adj
 import preprocessing as pp
 import filtration
 import os
+import numpy as np
 from multiprocessing import Pool 
 
 '''
@@ -38,22 +39,24 @@ def runPipeline(epoch):
 	filtration.VR(vrSavePath(epoch),processedMatrix)
 	print(f"Finished epoch: {epoch}")
 
+def runSTDAnalysis():
+	print('running STD analysis')
+	data = [[] for i in range(1+len(config['layerWidths']))]
+	for epoch in config['epochs']:
+		print(epoch)
+		weights = wl.simpleLoader(nnSavePath(epoch))
+		print(weights)
+		for i,W in enumerate(weights):
+			val = np.std(W)
+			print(val)
+			data[i].append(val)
 
-'''
-Runs the full pipeline as above function but it omits the Floyd-Warshall
-algorithm. Instead, nodes are defined by their 
-'''
-# def runAlternativePipeline(epoch):
-# 	print('Loading Weights...')
-# 	weights = wl.simpleLoader(nnSavePath(epoch), )
-# 	print('Generatingn Representation Matrix...')
-# 	M = adj.getWeightedAdjacencyMatrixNoBias(weights)
-# 	print('Preprocessing...')
-# 	M = pp.makeWeightAbsoluteDistance(M)
-# 	M = pp.removeZeros(M)
-# 	print('VRFiltration...')
-# 	filtration.VR(vrSavePath(epoch),M, is_distance_matrix=True)
-# 	print(f"Finished epoch: {epoch}")
+	# for i, lst in enumerate(data):
+	# 	layer_number = i + 1
+	# 	fn = stdAnalysisFn(layer_number)
+	
+	for l1, l2 in zip(data[0],data[1]):
+		print(f'{l1}\t{l2}')
 
 
 
@@ -64,7 +67,6 @@ that accepts a list of paths to vrData and the analysisSavePath.
 '''
 def runAnalysis():
 	import analysis
-	'''
 	vrPaths = []
 	imageSavePaths = []
 	for epoch in config["epochs"]:
@@ -72,8 +74,6 @@ def runAnalysis():
 		imageSavePaths.append(imageSavePath(epoch))
 	
 	analysis.runAnalysisAndVisualization(vrPaths,imageSavePaths,analysisBettiDistributionSavePath())
-	'''
-	analysis.runFloydReplacement(config)
 
 '''
 Makes a directory for nnData if there isn't one and mkdir is
@@ -142,6 +142,9 @@ def accSavePath(mkdir=True):
 		path = path + "_" + str(weight)
 	return path + ".txt"
 
+def stdAnalysisFn(layer_number):
+	return f'Layer_{layer_number}_stdPlot.png'
+
 def imageSavePath(epoch):
 	return analysisBettiDistributionSavePath() + f'Epoch{epoch}_birth_death.png'
 
@@ -159,11 +162,11 @@ def makeGIF():
 
 config = {
 
-	"root" : "/Users/kunaalsharma/Desktop/MATH 494/MATH 493/ShapeOfLearning/",
+	"root" : f'{os.getcwd()}/',
 
 	"symname" : "temp",
 
-	"layerWidths" : [16],
+	"layerWidths" : [8],
 
 	"epochs" : [i for i in range(1,51)],
 
@@ -177,22 +180,23 @@ config = {
 
 	"analysisSaveFn": analysisSavePath,
 
+	"stdAnalysisFn": stdAnalysisFn,
+
 	"inputSize" : 784,
 
 	"outputSize" : 10,
 
-	"nnSaveFnPre":""#'MODEL_Epoch'
+	"nnSaveFnPre":'MODEL_Epoch'
 }
 '''
 Change this depending upon what you want to do
 '''
 if __name__ == "__main__":
-	for l in [[32],[8,8],[16,8],[16,16],[8,8,8],[16,16,16],[32,32],[64]]:
-		config["layerWidths"] = l
-		trainNetwork()
-		bulkProcess()
-		plotModelMetrics()
-
-
+	# for l in [[32],[8,8],[16,8],[16,16],[8,8,8],[16,16,16],[32,32],[64]]:
+	# 	config["layerWidths"] = l
+	# 	trainNetwork()
+	# 	bulkProcess()
+	# 	plotModelMetrics()
+	runAnalysis()
 
 
